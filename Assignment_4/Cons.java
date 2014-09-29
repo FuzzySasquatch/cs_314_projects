@@ -103,27 +103,44 @@ public static Cons llmergesort (Cons lst) {
     // add other functions as you wish.
 
 public static Cons union (Cons x, Cons y) {
+  return mergeunion(llmergesort(x), llmergesort(y));
 }
 
     // following is a helper function for union
 public static Cons mergeunion (Cons x, Cons y) {
+  if (x == null)
+    return y;
+  if (y == null)
+    return x;
+  if (first(x).equals(first(y)))
+    return mergeunion(x, rest(y));
+  return cons(first(x), mergeunion(rest(x), y));
+
 }
 
 public static Cons setDifference (Cons x, Cons y) {
+  return mergediff(llmergesort(x), llmergesort(y));
 }
 
     // following is a helper function for setDifference
 public static Cons mergediff (Cons x, Cons y) {
+  if (x == null)
+    return null;
+  if (y == null)
+    return x;
+  if (first(x).equals(first(y)))
+    return mergediff(rest(x), rest(y));
+  return cons(first(x), mergediff(rest(x), y));
 }
 
-public static Cons bank(Cons accounts, Cons updates) {
+/*public static Cons bank(Cons accounts, Cons updates) {
 }
 
 public static String [] mergearr(String [] x, String [] y) {
 }
 
 public static boolean markup(Cons text) {
-}
+}*/
 
     // ****** your code ends here ******
 
@@ -142,7 +159,7 @@ public static boolean markup(Cons text) {
         System.out.println("difference = " +
                            Cons.toString(setDifference(set3, set4)));
 
-        Cons accounts = list(
+        /*Cons accounts = list(
                new Account("Arbiter", new Integer(498)),
                new Account("Flintstone", new Integer(102)),
                new Account("Foonly", new Integer(123)),
@@ -214,8 +231,7 @@ public static boolean markup(Cons text) {
         System.out.println("xmle = " + xmle.toString());
         System.out.println("result = " + markup(xmle));
         System.out.println("xmlf = " + xmlf.toString());
-        System.out.println("result = " + markup(xmlf));
-
+        System.out.println("result = " + markup(xmlf));*/
       }
 
 }

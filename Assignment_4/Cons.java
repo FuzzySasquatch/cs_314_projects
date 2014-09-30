@@ -133,9 +133,73 @@ public static Cons mergediff (Cons x, Cons y) {
   return cons(first(x), mergediff(rest(x), y));
 }
 
-//public static Cons bank(Cons accounts, Cons updates) {
+public static Cons bank(Cons accounts, Cons updates) {
+  return mergebank(accounts, llmergesort(updates));
+}
 
-//}
+public static Cons mergebank(Cons x, Cons y) {
+  if (x == null)
+    return y;
+  if (y == null)
+    return x;
+
+  // updates existent accounts
+  if (first(x).equals(first(y))) {
+    int balance = ((Account) first(x)).amount() + ((Account) first(y)).amount();
+    Account updated = new Account(((Account)first(x)).name(), balance);
+    // applies overdraft fees to accounts with negative balances
+    if (balance < 0) {
+      updated = new Account(updated.name(), balance - 30);
+      System.out.println("Overdraft fee charged for account, " + updated.name() + ". Current balance = " + updated.amount());
+      return mergebank(cons(updated, rest(x)), rest(y));
+    }
+    // for balances >= 0
+    return mergebank(cons(updated, rest(x)), rest(y));
+  }
+
+  // evaluates non-existent accounts
+  if (((Account)first(x)).name().compareTo(((Account)first(y)).name()) > 0) {
+    int balance = ((Account) first(y)).amount();
+
+    Account temp = new Account(((Account)first(y)).name(), balance);
+    boolean addAccount = updateAccount(y, temp);
+    if (!addAccount) {
+      System.out.println("Ignoring update for non-existent account, " + ((Account) first(y)).name() + 
+          ". Account transactions = " + balance);
+      return mergebank(x, rest(y));
+    }
+    System.out.println("Added new account, " + temp.name() + ". Current balance = " + balance);
+    return mergebank(cons(temp, x), rest(y));
+
+    /*// ignores non-existent negative balance accounts
+    if (balance <= 0) {
+      System.out.println("Ignoring update for non-existent account, " + ((Account) first(y)).name() + 
+          ". Account transactions = " + balance);
+      return mergebank(x, rest(y));
+    }
+    // creates a new accounts from positive non-existent ones
+    System.out.println("Added new account, " + ((Account) first(y)).name() + ". Current balance = " + balance);
+    return cons(first(y), mergebank(x, rest(y)));*/
+  }
+  return cons(first(x), mergebank(rest(x), y));
+}
+
+public static boolean updateAccount(Cons y, Account act) {
+  if (y == null)
+    return act.amount() > 0;
+  if (act.equals(first(y))) {
+    int balance = (act.amount() + ((Account) first(y)).amount());
+    act = new Account(act.name(), balance); 
+    return updateAccount(rest(y), act);
+  }
+  return updateAccount(rest(y), act); 
+
+  //after updating the new account
+  //move through the rest of y
+  //update if they are equal
+
+
+}
 
 /*public static String [] mergearr(String [] x, String [] y) {
 }
@@ -185,10 +249,10 @@ public static boolean markup(Cons text) {
         //System.out.println(((Account)first(updates)).name());
         //System.out.println(((Account)second(updates)).name());
         //System.out.println(((Account)first(updates)).name().compareTo(((Account)second(updates)).name()));
-        Cons newUpdates = llmergesort(updates);
-        System.out.println("sort attempt = " + Cons.toString(newUpdates));
-        //Cons newaccounts = bank(accounts, updates);
-        //System.out.println("result = " + newaccounts.toString());
+        //Cons newUpdates = llmergesort(updates);
+        //System.out.println("sort attempt = " + Cons.toString(newUpdates));
+        Cons newaccounts = bank(accounts, updates);
+        System.out.println("result = " + newaccounts.toString());
 
         /*String[] arra = {"a", "big", "dog", "hippo"};
         String[] arrb = {"canary", "cat", "fox", "turtle"};

@@ -133,10 +133,11 @@ public static Cons mergediff (Cons x, Cons y) {
   return cons(first(x), mergediff(rest(x), y));
 }
 
-/*public static Cons bank(Cons accounts, Cons updates) {
-}
+//public static Cons bank(Cons accounts, Cons updates) {
 
-public static String [] mergearr(String [] x, String [] y) {
+//}
+
+/*public static String [] mergearr(String [] x, String [] y) {
 }
 
 public static boolean markup(Cons text) {
@@ -159,7 +160,7 @@ public static boolean markup(Cons text) {
         System.out.println("difference = " +
                            Cons.toString(setDifference(set3, set4)));
 
-        /*Cons accounts = list(
+        Cons accounts = list(
                new Account("Arbiter", new Integer(498)),
                new Account("Flintstone", new Integer(102)),
                new Account("Foonly", new Integer(123)),
@@ -181,10 +182,15 @@ public static boolean markup(Cons text) {
                new Account("Flintstone", new Integer(-120))  );
         System.out.println("accounts = " + accounts.toString());
         System.out.println("updates = " + updates.toString());
-        Cons newaccounts = bank(accounts, updates);
-        System.out.println("result = " + newaccounts.toString());
+        //System.out.println(((Account)first(updates)).name());
+        //System.out.println(((Account)second(updates)).name());
+        //System.out.println(((Account)first(updates)).name().compareTo(((Account)second(updates)).name()));
+        Cons newUpdates = llmergesort(updates);
+        System.out.println("sort attempt = " + Cons.toString(newUpdates));
+        //Cons newaccounts = bank(accounts, updates);
+        //System.out.println("result = " + newaccounts.toString());
 
-        String[] arra = {"a", "big", "dog", "hippo"};
+        /*String[] arra = {"a", "big", "dog", "hippo"};
         String[] arrb = {"canary", "cat", "fox", "turtle"};
         String[] resarr = mergearr(arra, arrb);
         for ( int i = 0; i < resarr.length; i++ )

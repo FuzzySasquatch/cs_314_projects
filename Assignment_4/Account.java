@@ -18,14 +18,9 @@
         // return -1 to sort this account before x, else 1
         public int compareTo(Account x) {
             if (this.equals(x) && this.amount > 0 && this.amount > x.amount)
-                //return this.amount.compareTo(x.amount);
                 return -1;
             if (this.equals(x) && this.amount < 0 && this.amount > x.amount)
-                //return this.amount.compareTo(x.amount);
                 return 1;
-            //System.out.println(x);
-            //System.out.println(x);
-            //System.out.println(this.name().compareTo(x.name()));
             return this.name().compareTo(x.name());
         }
 

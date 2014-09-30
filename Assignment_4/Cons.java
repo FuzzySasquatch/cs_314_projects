@@ -112,31 +112,38 @@ public static Cons mergeunion (Cons x, Cons y) {
     return y;
   if (y == null)
     return x;
-  if (first(x).equals(first(y)))
-    return mergeunion(x, rest(y));
-  return cons(first(x), mergeunion(rest(x), y));
-
+  if(first(x).equals(first(y)))                           // x = y
+    return mergeunion(rest(x), y);
+  if (((Comparable)first(x)).compareTo(first(y)) < 0)     // x < y
+    return cons(first(x), mergeunion(rest(x), y));
+  return cons(first(y), mergeunion(x, rest(y)));          // x > y
 }
 
+// creates new sets with values unique to the first set
 public static Cons setDifference (Cons x, Cons y) {
   return mergediff(llmergesort(x), llmergesort(y));
 }
 
-    // following is a helper function for setDifference
+// following is a helper function for setDifference
 public static Cons mergediff (Cons x, Cons y) {
   if (x == null)
     return null;
   if (y == null)
     return x;
-  if (first(x).equals(first(y)))
+  if (first(x).equals(first(y)))                          // x = y
     return mergediff(rest(x), rest(y));
   return cons(first(x), mergediff(rest(x), y));
 }
 
+// updates existent accounts, applies overdraft fees, 
+// ignores non-existent accounts with negative balalances,
+// creates new accounts for non-existent accounts with
+// positive balances and returns this information as a new list
 public static Cons bank(Cons accounts, Cons updates) {
   return mergebank(accounts, llmergesort(updates));
 }
 
+// helper function to bank
 public static Cons mergebank(Cons x, Cons y) {
   if (x == null)
     return y;
@@ -158,47 +165,44 @@ public static Cons mergebank(Cons x, Cons y) {
   }
 
   // evaluates non-existent accounts
-  if (((Account)first(x)).name().compareTo(((Account)first(y)).name()) > 0) {
+  boolean nonExistent = ((Account)first(x)).name().compareTo(((Account)first(y)).name()) > 0;
+  if (nonExistent) {
     int balance = ((Account) first(y)).amount();
+    // sets up a temporary account for non-existents
+    Account temp = new Account(((Account) first(y)).name(), balance);
+    //checks the final balance
+    boolean postiveBal = checkTransactions(y, temp);
 
-    Account temp = new Account(((Account)first(y)).name(), balance);
-    boolean addAccount = updateAccount(y, temp);
-    if (!addAccount) {
-      System.out.println("Ignoring update for non-existent account, " + ((Account) first(y)).name() + 
-          ". Account transactions = " + balance);
+    // obtains and prints the final balance for negative accounts
+    if (!postiveBal) {
+      while (second(y) != null && temp.name().equals(((Account)second(y)).name())) {
+        balance += ((Account)first(rest(y))).amount(); 
+        temp = new Account(temp.name(), balance);
+        y = rest(y);
+      }
+      System.out.println("Ignoring update for non-existent account, " + temp.name() + ". Account transactions = " + balance);
       return mergebank(x, rest(y));
     }
+    // announces and establishes new accounts
     System.out.println("Added new account, " + temp.name() + ". Current balance = " + balance);
     return mergebank(cons(temp, x), rest(y));
-
-    /*// ignores non-existent negative balance accounts
-    if (balance <= 0) {
-      System.out.println("Ignoring update for non-existent account, " + ((Account) first(y)).name() + 
-          ". Account transactions = " + balance);
-      return mergebank(x, rest(y));
-    }
-    // creates a new accounts from positive non-existent ones
-    System.out.println("Added new account, " + ((Account) first(y)).name() + ". Current balance = " + balance);
-    return cons(first(y), mergebank(x, rest(y)));*/
   }
+
+  // conses final account names and balances onto the new list
   return cons(first(x), mergebank(rest(x), y));
 }
 
-public static boolean updateAccount(Cons y, Account act) {
+// evaluates the positivity of an account's final balance
+public static boolean checkTransactions(Cons y, Account tempAct) {
   if (y == null)
-    return act.amount() > 0;
-  if (act.equals(first(y))) {
-    int balance = (act.amount() + ((Account) first(y)).amount());
-    act = new Account(act.name(), balance); 
-    return updateAccount(rest(y), act);
+    return tempAct.amount() > 0;
+  // applies future updates
+  if (tempAct.equals(first(y))) {
+    int balance = (tempAct.amount() + ((Account) first(y)).amount());
+    tempAct = new Account(tempAct.name(), balance); 
+    return checkTransactions(rest(y), tempAct);
   }
-  return updateAccount(rest(y), act); 
-
-  //after updating the new account
-  //move through the rest of y
-  //update if they are equal
-
-
+  return checkTransactions(rest(y), tempAct); 
 }
 
 /*public static String [] mergearr(String [] x, String [] y) {
@@ -246,21 +250,16 @@ public static boolean markup(Cons text) {
                new Account("Flintstone", new Integer(-120))  );
         System.out.println("accounts = " + accounts.toString());
         System.out.println("updates = " + updates.toString());
-        //System.out.println(((Account)first(updates)).name());
-        //System.out.println(((Account)second(updates)).name());
-        //System.out.println(((Account)first(updates)).name().compareTo(((Account)second(updates)).name()));
-        //Cons newUpdates = llmergesort(updates);
-        //System.out.println("sort attempt = " + Cons.toString(newUpdates));
         Cons newaccounts = bank(accounts, updates);
         System.out.println("result = " + newaccounts.toString());
 
-        /*String[] arra = {"a", "big", "dog", "hippo"};
+        String[] arra = {"a", "big", "dog", "hippo"};
         String[] arrb = {"canary", "cat", "fox", "turtle"};
         String[] resarr = mergearr(arra, arrb);
         for ( int i = 0; i < resarr.length; i++ )
             System.out.println(resarr[i]);
 
-        Cons xmla = list( "<TT>", "foo", "</TT>");
+        /*Cons xmla = list( "<TT>", "foo", "</TT>");
         Cons xmlb = list( "<TABLE>", "<TR>", "<TD>", "foo", "</TD>",
                           "<TD>", "bar", "</TD>", "</TR>",
                           "<TR>", "<TD>", "fum", "</TD>", "<TD>",

@@ -6,9 +6,12 @@
  *          02 Oct 09; 12 Feb 10; 04 Oct 12
  */
 
+import java.util.*;
 interface Functor { Object fn(Object x); }
 
 interface Predicate { boolean pred(Object x); }
+
+
 
 public class Cons
 {
@@ -171,7 +174,7 @@ public static Cons mergebank(Cons x, Cons y) {
     // sets up a temporary account for non-existents
     Account temp = new Account(((Account) first(y)).name(), balance);
     //checks the final balance
-    boolean postiveBal = checkTransactions(y, temp);
+    boolean postiveBal = checktransactions(y, temp);
 
     // obtains and prints the final balance for negative accounts
     if (!postiveBal) {
@@ -193,25 +196,70 @@ public static Cons mergebank(Cons x, Cons y) {
 }
 
 // evaluates the positivity of an account's final balance
-public static boolean checkTransactions(Cons y, Account tempAct) {
+public static boolean checktransactions(Cons y, Account tempAct) {
   if (y == null)
     return tempAct.amount() > 0;
   // applies future updates
   if (tempAct.equals(first(y))) {
     int balance = (tempAct.amount() + ((Account) first(y)).amount());
     tempAct = new Account(tempAct.name(), balance); 
-    return checkTransactions(rest(y), tempAct);
+    return checktransactions(rest(y), tempAct);
   }
-  return checkTransactions(rest(y), tempAct); 
+  return checktransactions(rest(y), tempAct); 
 }
 
-/*public static String [] mergearr(String [] x, String [] y) {
+// merges two sorted arrays x and y to produce a new sorted array
+public static String [] mergearr(String [] x, String [] y) {
+  return mergearrb(x, y, 0, 0, new String[0]);
 }
 
-public static boolean markup(Cons text) {
-}*/
+// helper method to mergearr
+public static String [] mergearrb(String [] x, String [] y, int i, int j, String [] z) {
+   // x is null
+  if (i == x.length) {
+    int size = y.length - j + z.length;
+    String[] result = new String[size];
+    for (int index = 0; index < z.length; index++)
+      result[index] = z[index];
+    int tempj = j;
+    for (int index = 0; index < (y.length - tempj); index++)
+      result[index + z.length] = y[j++];
+    return result;
+  }
+   // y is null
+  if (j == y.length) {
+    int size = x.length - i + z.length;
+    String[] result = new String[size];
+    for (int index = 0; index < z.length; index++)
+      result[index] = z[index];
+    int tempi = i;
+    for (int index = 0; index < (x.length - tempi); index++)
+      result[index + z.length] = x[i++];
+    return result;
+  }
+   // x > y
+  if (x[i].compareTo(y[j]) > 0) {
+    int size = z.length + 1;
+    String[] result = new String[size];
+    result[size - 1] = y[j];
+    for (int index = 0; index < z.length; index++)
+      result[index] = z[index];
+    return mergearrb(x, y, i, ++j, result);
+  }
+  // x <= y
+  int size = z.length + 1;
+  String[] result = new String[size];
+  result[size - 1] = x[i];
+  for (int index = 0; index < z.length; index++)
+    result[index] = z[index];
+  return mergearrb(x, y, ++i, j, result);
+}
+
+//public static boolean markup(Cons text) {
+//}
 
     // ****** your code ends here ******
+
 
     public static void main( String[] args )
       { 

@@ -255,8 +255,34 @@ public static String [] mergearrb(String [] x, String [] y, int i, int j, String
   return mergearrb(x, y, ++i, j, result);
 }
 
-//public static boolean markup(Cons text) {
-//}
+public static boolean markup(Cons text) {
+  Cons myStack = null;
+  boolean wellFormed = true;
+  //int n = 0;
+  while (wellFormed && text != null) {
+    String s = (String) first(text);
+    if (s.contains("<") && !s.contains("/")) {
+      myStack = cons(s, myStack);
+      // System.out.println(s.substring(1));
+    }
+
+    System.out.println("Current stack = " + myStack.toString());
+    text = rest(text);
+    if (s.contains("/") && !((String)first(myStack)).substring(1).equals(s.substring(2)))
+      System.out.println(((String)first(myStack)).substring(1) + " equals " + s.substring(2));
+    /*switch (s) {
+      case.contains('<'):
+        myStack[n++] = s;
+        break;
+      case.contains("</"):
+        if (myStack.empty() || myStack[--n])
+          wellFormed = false;
+        break;
+    default: break; 
+    }*/
+  }
+  return (wellFormed);
+}
 
     // ****** your code ends here ******
 
@@ -307,7 +333,7 @@ public static String [] mergearrb(String [] x, String [] y, int i, int j, String
         for ( int i = 0; i < resarr.length; i++ )
             System.out.println(resarr[i]);
 
-        /*Cons xmla = list( "<TT>", "foo", "</TT>");
+        Cons xmla = list( "<TT>", "foo", "</TT>");
         Cons xmlb = list( "<TABLE>", "<TR>", "<TD>", "foo", "</TD>",
                           "<TD>", "bar", "</TD>", "</TR>",
                           "<TR>", "<TD>", "fum", "</TD>", "<TD>",
@@ -339,7 +365,7 @@ public static String [] mergearrb(String [] x, String [] y, int i, int j, String
                           "</CD>", "</CATALOG>");
         System.out.println("xmla = " + xmla.toString());
         System.out.println("result = " + markup(xmla));
-        System.out.println("xmlb = " + xmlb.toString());
+        /*System.out.println("xmlb = " + xmlb.toString());
         System.out.println("result = " + markup(xmlb));
         System.out.println("xmlc = " + xmlc.toString());
         System.out.println("result = " + markup(xmlc));

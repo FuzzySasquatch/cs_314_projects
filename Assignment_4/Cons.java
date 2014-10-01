@@ -6,7 +6,6 @@
  *          02 Oct 09; 12 Feb 10; 04 Oct 12
  */
 
-import java.util.*;
 interface Functor { Object fn(Object x); }
 
 interface Predicate { boolean pred(Object x); }
@@ -162,7 +161,7 @@ public static Cons mergebank(Cons x, Cons y) {
     // applies overdraft fees to accounts with negative balances
     if (balance < 0) {
       updated = new Account(updated.name(), balance - 30);
-      System.out.println("Overdraft fee charged for account, " + updated.name() + ". Current balance = " + updated.amount());
+      System.out.println("Overdraft " + updated.name() + " " + updated.amount());
       return mergebank(cons(updated, rest(x)), rest(y));
     }
     // for balances >= 0
@@ -185,11 +184,11 @@ public static Cons mergebank(Cons x, Cons y) {
         temp = new Account(temp.name(), balance);
         y = rest(y);
       }
-      System.out.println("Ignoring update for non-existent account, " + temp.name() + ". Account transactions = " + balance);
+      System.out.println("No account " + temp.name() + " " + balance);
       return mergebank(x, rest(y));
     }
     // announces and establishes new accounts
-    System.out.println("Added new account, " + temp.name() + ". Current balance = " + balance);
+    System.out.println("New account " + temp.name() + " " + balance);
     return mergebank(cons(temp, x), rest(y));
   }
 
@@ -274,7 +273,8 @@ public static boolean markup(Cons text) {
       // account for unexpected tags
       if (myStack == null || !((String)first(myStack)).substring(1).equals(s.substring(2))) {
         wellFormed = false;
-        System.out.println("Unexpected tag, " + s + ", at index " + i + ". Expected " + ((String)first(myStack)) + ", open tag, or text.");
+        int size = s.length() - 1;
+        System.out.println("Bad tag " + s.substring(2, size) + " at pos " + i + " should be " + ((String)first(myStack)));
       }
       // pop tags with matching closing tags
       myStack = rest(myStack);
@@ -284,8 +284,9 @@ public static boolean markup(Cons text) {
   // account for unclosed tags
   if (myStack != null && wellFormed) {
     wellFormed = false;
-    int size = myStack.toString().length() - 1;
-    System.out.println("End of file reached with unclosed tags: " + myStack.toString().substring(1, size));
+    String badTag = ((String)first(myStack));
+    int size = badTag.length() - 1;
+    System.out.println("Unbalanced tag " + badTag.substring(1, size));
   }
   return (wellFormed);
 }

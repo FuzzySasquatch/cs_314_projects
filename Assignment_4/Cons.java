@@ -105,11 +105,13 @@ public static Cons llmergesort (Cons lst) {
     // ****** your code starts here ******
     // add other functions as you wish.
 
+// merges elements from two sets that are members
+// of either set
 public static Cons union (Cons x, Cons y) {
   return mergeunion(llmergesort(x), llmergesort(y));
 }
 
-    // following is a helper function for union
+// following is a helper function for union
 public static Cons mergeunion (Cons x, Cons y) {
   if (x == null)
     return y;
@@ -146,7 +148,7 @@ public static Cons bank(Cons accounts, Cons updates) {
   return mergebank(accounts, llmergesort(updates));
 }
 
-// helper function to bank
+// helper function for bank
 public static Cons mergebank(Cons x, Cons y) {
   if (x == null)
     return y;
@@ -213,7 +215,7 @@ public static String [] mergearr(String [] x, String [] y) {
   return mergearrb(x, y, 0, 0, new String[0]);
 }
 
-// helper method to mergearr
+// helper method for mergearr
 public static String [] mergearrb(String [] x, String [] y, int i, int j, String [] z) {
    // x is null
   if (i == x.length) {
@@ -255,31 +257,35 @@ public static String [] mergearrb(String [] x, String [] y, int i, int j, String
   return mergearrb(x, y, ++i, j, result);
 }
 
+// checks to see if text in a markup language is well-formed
 public static boolean markup(Cons text) {
   Cons myStack = null;
   boolean wellFormed = true;
-  //int n = 0;
+  int i = 0;
   while (wellFormed && text != null) {
     String s = (String) first(text);
+    // manage opening tags
     if (s.contains("<") && !s.contains("/")) {
       myStack = cons(s, myStack);
-      // System.out.println(s.substring(1));
     }
-
-    System.out.println("Current stack = " + myStack.toString());
     text = rest(text);
-    if (s.contains("/") && !((String)first(myStack)).substring(1).equals(s.substring(2)))
-      System.out.println(((String)first(myStack)).substring(1) + " equals " + s.substring(2));
-    /*switch (s) {
-      case.contains('<'):
-        myStack[n++] = s;
-        break;
-      case.contains("</"):
-        if (myStack.empty() || myStack[--n])
-          wellFormed = false;
-        break;
-    default: break; 
-    }*/
+    // manage closing tags
+    if (s.contains("/")) {
+      // account for unexpected tags
+      if (myStack == null || !((String)first(myStack)).substring(1).equals(s.substring(2))) {
+        wellFormed = false;
+        System.out.println("Unexpected tag, " + s + ", at index " + i + ". Expected " + ((String)first(myStack)) + ", open tag, or text.");
+      }
+      // pop tags with matching closing tags
+      myStack = rest(myStack);
+    }
+    i++;
+  }
+  // account for unclosed tags
+  if (myStack != null && wellFormed) {
+    wellFormed = false;
+    int size = myStack.toString().length() - 1;
+    System.out.println("End of file reached with unclosed tags: " + myStack.toString().substring(1, size));
   }
   return (wellFormed);
 }
@@ -365,7 +371,7 @@ public static boolean markup(Cons text) {
                           "</CD>", "</CATALOG>");
         System.out.println("xmla = " + xmla.toString());
         System.out.println("result = " + markup(xmla));
-        /*System.out.println("xmlb = " + xmlb.toString());
+        System.out.println("xmlb = " + xmlb.toString());
         System.out.println("result = " + markup(xmlb));
         System.out.println("xmlc = " + xmlc.toString());
         System.out.println("result = " + markup(xmlc));
@@ -374,7 +380,7 @@ public static boolean markup(Cons text) {
         System.out.println("xmle = " + xmle.toString());
         System.out.println("result = " + markup(xmle));
         System.out.println("xmlf = " + xmlf.toString());
-        System.out.println("result = " + markup(xmlf));*/
+        System.out.println("result = " + markup(xmlf));
       }
 
 }

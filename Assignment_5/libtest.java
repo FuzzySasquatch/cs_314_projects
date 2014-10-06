@@ -15,7 +15,7 @@ public class libtest {
 
     // ****** your code starts here ******
 
-
+// adds up a list of Integer using a LinkedList
 public static Integer sumlist(LinkedList<Integer> lst) {
     int size = lst.size();
     return sumlistb(lst, 0, size - 1);
@@ -28,7 +28,7 @@ public static Integer sumlistb(LinkedList<Integer> lst, int sum, int size) {
     return sumlistb(lst, sum + lst.get(size), size - 1);
 }
 
-
+// adds up a list of Integer using an ArrayList
 public static Integer sumarrlist(ArrayList<Integer> lst) {
     int size = lst.size();
     return sumarrlistb(lst, 0, size - 1);
@@ -41,10 +41,12 @@ public static Integer sumarrlistb(ArrayList<Integer> lst, int sum, int size) {
     return sumarrlistb(lst, sum + lst.get(size), size - 1);
 }
 
+// returns a list of items from the input list that satisfy predicate p
 public static LinkedList<Object> subset (Predicate p,
                                           LinkedList<Object> lst) {
     LinkedList<Object> result = new LinkedList<Object>();
     ListIterator<Object> litr = lst.listIterator();
+
     while (litr.hasNext()) {
         Object item = litr.next();
         if (p.pred(item))
@@ -53,9 +55,11 @@ public static LinkedList<Object> subset (Predicate p,
     return result;
 }
 
+// removes values for a list that do not satisfy predicate p
 public static LinkedList<Object> dsubset (Predicate p,
                                            LinkedList<Object> lst) {
     ListIterator<Object> litr = lst.listIterator();
+
     while (litr.hasNext()) {
         Object item = litr.next();
         if (!p.pred(item))  
@@ -64,8 +68,10 @@ public static LinkedList<Object> dsubset (Predicate p,
     return lst;
 }
 
+// returns the first item in a list that satisfies the predicate p
 public static Object some (Predicate p, LinkedList<Object> lst) {
     ListIterator<Object> litr = lst.listIterator();
+
     while (litr.hasNext()) {
         Object item = litr.next();
         if (p.pred(item))  
@@ -74,20 +80,24 @@ public static Object some (Predicate p, LinkedList<Object> lst) {
     return null;
 }
 
+// returns a list containing the results applied by the functor
 public static LinkedList<Object> mapcar (Functor f, LinkedList<Object> lst) {
     LinkedList<Object> result = new LinkedList<Object>();
     ListIterator<Object> litr = lst.listIterator();
+
     while (litr.hasNext()) {
         result.add(f.fn(litr.next()));
     }
     return result;
 }
 
+// merges two sorted lists
 public static LinkedList<Object> merge (LinkedList<Object> lsta,
                                         LinkedList<Object> lstb) {
     LinkedList<Object> result = new LinkedList<Object>();
     ListIterator<Object> litra = lsta.listIterator();
     ListIterator<Object> litrb = lstb.listIterator();
+
     while (litra.hasNext() && litrb.hasNext()) {
         Object a = litra.next();
         Object b = litrb.next();
@@ -99,8 +109,8 @@ public static LinkedList<Object> merge (LinkedList<Object> lsta,
             result.add(a);
             litrb.previous();
         }
-        //System.out.println(result);
     }
+
     while (litra.hasNext())
         result.add(litra.next());
     while (litrb.hasNext())
@@ -108,12 +118,15 @@ public static LinkedList<Object> merge (LinkedList<Object> lsta,
     return result;
 }
 
+// returns the input sorted in ascending order
 public static LinkedList<Object> sort (LinkedList<Object> lst) {
     if (lst.size() == 1)
         return lst;
+
     ListIterator<Object> litr = lst.listIterator();
     LinkedList<Object> lsta = new LinkedList<Object>();
     LinkedList<Object> lstb = new LinkedList<Object>();
+
     int midpoint = lst.size() / 2;
     for (int i = 0; i < midpoint; i++)
         lsta.add(litr.next());
@@ -122,13 +135,36 @@ public static LinkedList<Object> sort (LinkedList<Object> lst) {
     return merge(sort(lsta), sort(lstb));
 }
 
-/*public static LinkedList<Object> intersection (LinkedList<Object> lsta,
+// returns a set of elements that are members of both sets
+public static LinkedList<Object> intersection (LinkedList<Object> lsta,
                                                LinkedList<Object> lstb) {
+    return intersectionb(sort(lsta), sort(lstb));
 }
 
-public static LinkedList<Object> reverse (LinkedList<Object> lst) {
+// helper method for intersection
+public static LinkedList<Object> intersectionb (LinkedList<Object> lsta,
+                                               LinkedList<Object> lstb) {
+    LinkedList<Object> result = new LinkedList<Object>();
+    ListIterator<Object> litra = lsta.listIterator();
+    ListIterator<Object> litrb = lstb.listIterator();
+
+    while (litra.hasNext() && litrb.hasNext()) {
+        Object a = litra.next();
+        Object b = litrb.next();
+        if (((Comparable)a).compareTo(b) > 0)
+            litra.previous();
+        else if (((Comparable)a).compareTo(b) < 0)
+            litrb.previous();
+        else
+            result.add(a);
+    }
+    return result;
 }
-*/
+
+// returns a new list in the reverse order of the input list
+public static LinkedList<Object> reverse (LinkedList<Object> lst) {
+
+}
 
     // ****** your code ends here ******
 
@@ -240,8 +276,8 @@ public static LinkedList<Object> reverse (LinkedList<Object> lst) {
         lstg.add(new Integer(17));
         System.out.println("lstg = " + lstg);
 
-        //System.out.println("intersection(lstd, lstg) = "
-        //                   + intersection(lstd, lstg));
+        System.out.println("intersection(lstd, lstg) = "
+                           + intersection(lstd, lstg));
         //System.out.println("reverse lste = " + reverse(lste));
 
         System.out.println("sort(lstg) = " + sort(lstg));

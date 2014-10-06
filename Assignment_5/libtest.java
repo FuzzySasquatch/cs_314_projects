@@ -17,38 +17,118 @@ public class libtest {
 
 
 public static Integer sumlist(LinkedList<Integer> lst) {
+    int size = lst.size();
+    return sumlistb(lst, 0, size - 1);
 }
 
+// helper function to sumlist
+public static Integer sumlistb(LinkedList<Integer> lst, int sum, int size) {
+    if (size < 0)
+        return sum;
+    return sumlistb(lst, sum + lst.get(size), size - 1);
+}
+
+
 public static Integer sumarrlist(ArrayList<Integer> lst) {
+    int size = lst.size();
+    return sumarrlistb(lst, 0, size - 1);
+}
+
+// helper function to sumarrlist
+public static Integer sumarrlistb(ArrayList<Integer> lst, int sum, int size) {
+    if (size < 0)
+        return sum;
+    return sumarrlistb(lst, sum + lst.get(size), size - 1);
 }
 
 public static LinkedList<Object> subset (Predicate p,
                                           LinkedList<Object> lst) {
+    LinkedList<Object> result = new LinkedList<Object>();
+    ListIterator<Object> litr = lst.listIterator();
+    while (litr.hasNext()) {
+        Object item = litr.next();
+        if (p.pred(item))
+            result.add(item);
+    }
+    return result;
 }
 
 public static LinkedList<Object> dsubset (Predicate p,
                                            LinkedList<Object> lst) {
+    ListIterator<Object> litr = lst.listIterator();
+    while (litr.hasNext()) {
+        Object item = litr.next();
+        if (!p.pred(item))  
+            litr.remove();
+    }
+    return lst;
 }
 
 public static Object some (Predicate p, LinkedList<Object> lst) {
+    ListIterator<Object> litr = lst.listIterator();
+    while (litr.hasNext()) {
+        Object item = litr.next();
+        if (p.pred(item))  
+            return item;
+    }
+    return null;
 }
 
 public static LinkedList<Object> mapcar (Functor f, LinkedList<Object> lst) {
+    LinkedList<Object> result = new LinkedList<Object>();
+    ListIterator<Object> litr = lst.listIterator();
+    while (litr.hasNext()) {
+        result.add(f.fn(litr.next()));
+    }
+    return result;
 }
 
 public static LinkedList<Object> merge (LinkedList<Object> lsta,
                                         LinkedList<Object> lstb) {
+    LinkedList<Object> result = new LinkedList<Object>();
+    ListIterator<Object> litra = lsta.listIterator();
+    ListIterator<Object> litrb = lstb.listIterator();
+    while (litra.hasNext() && litrb.hasNext()) {
+        Object a = litra.next();
+        Object b = litrb.next();
+        if (((Comparable)a).compareTo(b) > 0) {
+            result.add(b);
+            litra.previous();
+        }
+        else {
+            result.add(a);
+            litrb.previous();
+        }
+        //System.out.println(result);
+    }
+    while (litra.hasNext())
+        result.add(litra.next());
+    while (litrb.hasNext())
+        result.add(litrb.next());
+    return result;
 }
 
 public static LinkedList<Object> sort (LinkedList<Object> lst) {
+    if (lst.size() == 1)
+        return lst;
+    ListIterator<Object> litr = lst.listIterator();
+    LinkedList<Object> lsta = new LinkedList<Object>();
+    LinkedList<Object> lstb = new LinkedList<Object>();
+    int midpoint = lst.size() / 2;
+    for (int i = 0; i < midpoint; i++)
+        lsta.add(litr.next());
+    while (litr.hasNext())
+        lstb.add(litr.next());
+    return merge(sort(lsta), sort(lstb));
 }
 
-public static LinkedList<Object> intersection (LinkedList<Object> lsta,
+/*public static LinkedList<Object> intersection (LinkedList<Object> lsta,
                                                LinkedList<Object> lstb) {
 }
 
 public static LinkedList<Object> reverse (LinkedList<Object> lst) {
 }
+*/
 
     // ****** your code ends here ******
 
@@ -60,6 +140,23 @@ public static LinkedList<Object> reverse (LinkedList<Object> lst) {
         lst.add(new Integer(5));
         System.out.println("lst = " + lst);
         System.out.println("sum = " + sumlist(lst));
+
+        
+        // Double lst size
+        /*Stopwatch timer = new Stopwatch();
+
+        for (int i = 2000; i <= 16000; i *= 2) {
+            ArrayList<Integer> lstc = new ArrayList<Integer>();
+            
+            for (int j = 0; j < i; j++)
+                lstc.add(new Integer(100));
+            timer.start();
+            sumarrlist(lstc);
+            timer.stop();
+            System.out.println(timer);
+            System.out.println("Size = " + i);
+            //System.out.println("List = " + lstc);
+        }*/
 
         ArrayList<Integer> lstb = new ArrayList<Integer>();
         lstb.add(new Integer(3));
@@ -143,11 +240,11 @@ public static LinkedList<Object> reverse (LinkedList<Object> lst) {
         lstg.add(new Integer(17));
         System.out.println("lstg = " + lstg);
 
-        System.out.println("intersection(lstd, lstg) = "
-                           + intersection(lstd, lstg));
-        System.out.println("reverse lste = " + reverse(lste));
+        //System.out.println("intersection(lstd, lstg) = "
+        //                   + intersection(lstd, lstg));
+        //System.out.println("reverse lste = " + reverse(lste));
 
         System.out.println("sort(lstg) = " + sort(lstg));
-
+        
    }
 }

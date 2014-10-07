@@ -110,11 +110,12 @@ public static LinkedList<Object> merge (LinkedList<Object> lsta,
             litrb.previous();
         }
     }
-
+    // accounts for lists of different lengths
     while (litra.hasNext())
         result.add(litra.next());
     while (litrb.hasNext())
         result.add(litrb.next());
+
     return result;
 }
 
@@ -127,9 +128,11 @@ public static LinkedList<Object> sort (LinkedList<Object> lst) {
     LinkedList<Object> lsta = new LinkedList<Object>();
     LinkedList<Object> lstb = new LinkedList<Object>();
 
+    // finds the midpoint and creates the first list
     int midpoint = lst.size() / 2;
     for (int i = 0; i < midpoint; i++)
         lsta.add(litr.next());
+    // creates the second list
     while (litr.hasNext())
         lstb.add(litr.next());
     return merge(sort(lsta), sort(lstb));
@@ -155,7 +158,7 @@ public static LinkedList<Object> intersectionb (LinkedList<Object> lsta,
             litra.previous();
         else if (((Comparable)a).compareTo(b) < 0)
             litrb.previous();
-        else
+        else // a = b
             result.add(a);
     }
     return result;
@@ -163,7 +166,13 @@ public static LinkedList<Object> intersectionb (LinkedList<Object> lsta,
 
 // returns a new list in the reverse order of the input list
 public static LinkedList<Object> reverse (LinkedList<Object> lst) {
+    LinkedList<Object> result = new LinkedList<Object>();
+    ListIterator<Object> litr = lst.listIterator();
 
+    while (litr.hasNext()) {
+        result.addFirst(litr.next());
+    }
+    return result;
 }
 
     // ****** your code ends here ******
@@ -176,23 +185,6 @@ public static LinkedList<Object> reverse (LinkedList<Object> lst) {
         lst.add(new Integer(5));
         System.out.println("lst = " + lst);
         System.out.println("sum = " + sumlist(lst));
-
-        
-        // Double lst size
-        /*Stopwatch timer = new Stopwatch();
-
-        for (int i = 2000; i <= 16000; i *= 2) {
-            ArrayList<Integer> lstc = new ArrayList<Integer>();
-            
-            for (int j = 0; j < i; j++)
-                lstc.add(new Integer(100));
-            timer.start();
-            sumarrlist(lstc);
-            timer.stop();
-            System.out.println(timer);
-            System.out.println("Size = " + i);
-            //System.out.println("List = " + lstc);
-        }*/
 
         ArrayList<Integer> lstb = new ArrayList<Integer>();
         lstb.add(new Integer(3));
@@ -278,7 +270,7 @@ public static LinkedList<Object> reverse (LinkedList<Object> lst) {
 
         System.out.println("intersection(lstd, lstg) = "
                            + intersection(lstd, lstg));
-        //System.out.println("reverse lste = " + reverse(lste));
+        System.out.println("reverse lste = " + reverse(lste));
 
         System.out.println("sort(lstg) = " + sort(lstg));
         

@@ -209,13 +209,58 @@ public static boolean occurs(Object value, Object tree) {
   return false;
 }
 
-/*public static Integer eval (Object tree) {
+public static Integer eval (Object tree) {
+  if (consp(tree)) {
+    if (op((Cons)tree).equals("+"))
+      return eval(lhs((Cons)tree)) + eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("-")) {
+      if (rest(rest((Cons)tree)) == null)
+        return - eval(lhs((Cons)tree));
+      return eval(lhs((Cons)tree)) - eval(rhs((Cons)tree));
+    }
+    else if (op((Cons)tree).equals("*"))
+      return eval(lhs((Cons)tree)) * eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("/"))
+      return eval(lhs((Cons)tree)) / eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("expt"))
+      return pow(eval(lhs((Cons)tree)), eval(rhs((Cons)tree)));
+    return 0;
+  }
+  else if (numberp(tree))
+    return (Integer) tree;
+  return 0;
 }
 
 public static Integer eval (Object tree, Cons bindings) {
+  if (consp(tree)) {
+    if (op((Cons)tree).equals("+"))
+      return eval(lhs((Cons)tree), bindings) + eval(rhs((Cons)tree), bindings);
+    else if (op((Cons)tree).equals("-")) {
+      if (rest(rest((Cons)tree)) == null) {
+        // System.out.println("Here.");
+        // System.out.println(- eval(lhs((Cons)tree), bindings));
+        return - eval(lhs((Cons)tree), bindings);
+      }
+      return eval(lhs((Cons)tree), bindings) - eval(rhs((Cons)tree), bindings);
+    }
+    else if (op((Cons)tree).equals("*"))
+      return eval(lhs((Cons)tree), bindings) * eval(rhs((Cons)tree), bindings);
+    else if (op((Cons)tree).equals("/"))
+      return eval(lhs((Cons)tree), bindings) / eval(rhs((Cons)tree), bindings);
+    else if (op((Cons)tree).equals("expt"))
+      return pow(eval(lhs((Cons)tree), bindings), eval(rhs((Cons)tree), bindings));
+    return 0;
+  }
+  else if (numberp(tree))
+    return (Integer) tree;
+  else if(stringp(tree)) {
+    System.out.println((Integer)second(assoc(tree, bindings)));
+    return (Integer)second(assoc(tree, bindings));
+  }
+  return 0;
 }
 
-public static Cons english (Object tree) {
+/*public static Cons english (Object tree) {
 }
 
 public static String tojava (Object tree) {
@@ -252,7 +297,7 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("occurs(c, expr9) = " + occurs("c", expr9));
         System.out.println("occurs(m, expr9) = " + occurs("m", expr9));
 
-        /*Cons expr3 = list("+", new Integer(3), list("*", new Integer(5),
+        Cons expr3 = list("+", new Integer(3), list("*", new Integer(5),
                                                          new Integer(7)));
         System.out.println("expr3 = " + expr3.toString());
         System.out.println("eval(expr3) = " + eval(expr3));
@@ -279,7 +324,7 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("expr6 = " + expr6.toString());
         System.out.println("alist = " + alist.toString());
         System.out.println("eval(expr6) = " + eval(expr6, alist));
-        System.out.println("english(expr5) = " + english(expr5).toString());
+        /*System.out.println("english(expr5) = " + english(expr5).toString());
         System.out.println("english(expr6) = " + english(expr6).toString());
         System.out.println("tojava(expr1) = " + tojava(expr1).toString());
         Cons expr7 = list("=", "x", list("*", list("+", "a", "b"), "c"));

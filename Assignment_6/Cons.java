@@ -193,10 +193,15 @@ public static Integer maxbt (Object tree) {
   return Integer.MIN_VALUE;
 }
 
-/*public static Cons vars (Object expr) {
+public static Cons vars (Object expr) {
+  if (consp(expr))
+    return union(vars(lhs((Cons)expr)), vars(rhs((Cons)expr)));
+  else if (stringp(expr))
+    return cons(expr, null);
+  return null;
 }
 
-public static boolean occurs(Object value, Object tree) {
+/*public static boolean occurs(Object value, Object tree) {
 }
 
 public static Integer eval (Object tree) {
@@ -212,8 +217,8 @@ public static String tojava (Object tree) {
    return (tojavab(tree, 0) + ";"); }
 
 public static String tojavab (Object tree, int prec) {
-}*/
-
+}
+*/
     // ****** your code ends here ******
 
     public static void main( String[] args ) {
@@ -221,7 +226,7 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("bt1 = " + bt1.toString());
         System.out.println("maxbt(bt1) = " + maxbt(bt1));
 
-        /*Cons expr1 = list("=", "f", list("*", "m", "a"));
+        Cons expr1 = list("=", "f", list("*", "m", "a"));
         System.out.println("expr1 = " + expr1.toString());
         System.out.println("vars(expr1) = " + vars(expr1).toString());
 
@@ -231,7 +236,7 @@ public static String tojavab (Object tree, int prec) {
                                          "r"));
         System.out.println("expr2 = " + expr2.toString());
         System.out.println("vars(expr2) = " + vars(expr2).toString());
-        System.out.println("occurs(m, expr2) = " + occurs("m", expr2));
+        /*System.out.println("occurs(m, expr2) = " + occurs("m", expr2));
         System.out.println("occurs(7, expr2) = " + occurs(new Integer(7), expr2));
         Cons expr9 = list( "=", "v",
                                 list("*", "v0",

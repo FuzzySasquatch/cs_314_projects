@@ -282,12 +282,59 @@ public static Cons english (Object tree) {
   return null;
 }
 
-/*public static String tojava (Object tree) {
+public static String tojava (Object tree) {
    return (tojavab(tree, 0) + ";"); }
 
 public static String tojavab (Object tree, int prec) {
+  /*
+    "("
+    "tojavab(lhs, prec)"
+    "op"
+    "tojavab(rhs, prec)"
+    ")"
+    */
+
+  if (consp(tree)) {
+
+    if (op((Cons)tree).equals("=")) {
+      if (1 <= prec)
+        return "(" + tojavab(lhs((Cons)tree), 1) + " = " + tojavab(rhs((Cons)tree), 1) + ")";
+    return tojavab(lhs((Cons)tree), 1) + " = " + tojavab(rhs((Cons)tree), 1);
+    }
+
+    else if (op((Cons)tree).equals("+")) {
+      if (5 <= prec)
+        return "(" + tojavab(lhs((Cons)tree), 5) + " + " + tojavab(rhs((Cons)tree), 5) + ")";
+    return tojavab(lhs((Cons)tree), 5) + " + " + tojavab(rhs((Cons)tree), 5);
+    }
+
+    else if (op((Cons)tree).equals("-")) {
+      if (rest(rest((Cons)tree)) == null)
+        return "(-" + tojavab(lhs((Cons)tree), 6) + ")";
+      else if (5 <= prec)
+        return "(" + tojavab(lhs((Cons)tree), 5) + " - " + tojavab(rhs((Cons)tree), 5) + ")";
+    return tojavab(lhs((Cons)tree), 5) + " - " + tojavab(rhs((Cons)tree), 5);
+    }
+
+    else if (op((Cons)tree).equals("*")) {
+      if (6 <= prec)
+        return "(" + tojavab(lhs((Cons)tree), 6) + " * " + tojavab(rhs((Cons)tree), 6) + ")";
+    return tojavab(lhs((Cons)tree), 6) + " * " + tojavab(rhs((Cons)tree), 6);
+    }
+
+    else if (op((Cons)tree).equals("/")) {
+      if (6 <= prec)
+        return "(" + tojavab(lhs((Cons)tree), 6) + " / " + tojavab(rhs((Cons)tree), 6) + ")";
+    return tojavab(lhs((Cons)tree), 6) + " / " + tojavab(rhs((Cons)tree), 6);
+    }
+
+    return "Math." + op((Cons)tree) + "(" + tojavab(lhs((Cons)tree), 0) + ")";
+  }
+
+  return "" + tree;
+
 }
-*/
+
     // ****** your code ends here ******
 
     public static void main( String[] args ) {
@@ -345,7 +392,8 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("eval(expr6) = " + eval(expr6, alist));
         System.out.println("english(expr5) = " + english(expr5).toString());
         System.out.println("english(expr6) = " + english(expr6).toString());
-        /*System.out.println("tojava(expr1) = " + tojava(expr1).toString());
+
+        System.out.println("tojava(expr1) = " + tojava(expr1).toString());
         Cons expr7 = list("=", "x", list("*", list("+", "a", "b"), "c"));
         System.out.println("expr7 = " + expr7.toString());
         System.out.println("tojava(expr7) = " + tojava(expr7).toString());
@@ -356,7 +404,7 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("tojava(expr9) = " + tojava(expr9).toString());
 
 
-       Cons set3 = list("d", "b", "c", "a");*/
+       // Cons set3 = list("d", "b", "c", "a");
 
       }
 

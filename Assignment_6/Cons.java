@@ -185,6 +185,7 @@ public static Cons readlist( Cons lst ) {
 
     // ****** your code starts here ******
 
+// finds the max value in a binary tree
 public static Integer maxbt (Object tree) {
   if (consp(tree))
     return Math.max(maxbt(first((Cons)tree)), maxbt(rest((Cons)tree)));
@@ -193,6 +194,7 @@ public static Integer maxbt (Object tree) {
   return Integer.MIN_VALUE;
 }
 
+// returns the set of variables in an expression
 public static Cons vars (Object expr) {
   if (consp(expr))
     return union(vars(lhs((Cons)expr)), vars(rhs((Cons)expr)));
@@ -201,19 +203,23 @@ public static Cons vars (Object expr) {
   return null;
 }
 
+// tests whether a value occurs in an expression
 public static boolean occurs(Object value, Object tree) {
   if (consp(tree))
     return occurs(value, lhs((Cons)tree)) || occurs(value, rhs((Cons)tree));
-  else if (!consp(tree) && tree != null)
+  else if (tree != null)
     return tree.equals(value);
   return false;
 }
 
+// evaluates an expression tree
 public static Integer eval (Object tree) {
+  // interior
   if (consp(tree)) {
     if (op((Cons)tree).equals("+"))
       return eval(lhs((Cons)tree)) + eval(rhs((Cons)tree));
     else if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
       if (rest(rest((Cons)tree)) == null)
         return - eval(lhs((Cons)tree));
       return eval(lhs((Cons)tree)) - eval(rhs((Cons)tree));
@@ -224,21 +230,23 @@ public static Integer eval (Object tree) {
       return eval(lhs((Cons)tree)) / eval(rhs((Cons)tree));
     else if (op((Cons)tree).equals("expt"))
       return pow(eval(lhs((Cons)tree)), eval(rhs((Cons)tree)));
-    return 0;
+    return null;
   }
+  // leaf
   else if (numberp(tree))
     return (Integer) tree;
-  return 0;
+  return null;
 }
 
+// assigns values to variables and evaluates the resulting expression
 public static Integer eval (Object tree, Cons bindings) {
+  // interior
   if (consp(tree)) {
     if (op((Cons)tree).equals("+"))
       return eval(lhs((Cons)tree), bindings) + eval(rhs((Cons)tree), bindings);
     else if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
       if (rest(rest((Cons)tree)) == null) {
-        // System.out.println("Here.");
-        // System.out.println(- eval(lhs((Cons)tree), bindings));
         return - eval(lhs((Cons)tree), bindings);
       }
       return eval(lhs((Cons)tree), bindings) - eval(rhs((Cons)tree), bindings);
@@ -249,22 +257,26 @@ public static Integer eval (Object tree, Cons bindings) {
       return eval(lhs((Cons)tree), bindings) / eval(rhs((Cons)tree), bindings);
     else if (op((Cons)tree).equals("expt"))
       return pow(eval(lhs((Cons)tree), bindings), eval(rhs((Cons)tree), bindings));
-    return 0;
+    return null;
   }
+  // leaf
   else if (numberp(tree))
     return (Integer) tree;
+  // assigns values to variables
   else if(stringp(tree)) {
-    // System.out.println((Integer)second(assoc(tree, bindings)));
     return (Integer)second(assoc(tree, bindings));
   }
-  return 0;
+  return null;
 }
 
+// translates an expression tree into a list of English words
 public static Cons english (Object tree) {
+  // interior
   if (consp(tree)) {
     if (op((Cons)tree).equals("+"))
       return append(append(list("the sum of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
     else if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
       if (rest(rest((Cons)tree)) == null)
         return append(list("the negative of"), english(lhs((Cons)tree)));
       return append(append(list("the difference of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
@@ -277,62 +289,53 @@ public static Cons english (Object tree) {
       return append(append(list("the power of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
     return null;
   }
+  // leaf
   else if (numberp(tree) || stringp(tree))
     return list(tree);
   return null;
 }
 
+// translates an expression tree into a line of Java code
 public static String tojava (Object tree) {
    return (tojavab(tree, 0) + ";"); }
 
+// helper method for tojava
 public static String tojavab (Object tree, int prec) {
-  /*
-    "("
-    "tojavab(lhs, prec)"
-    "op"
-    "tojavab(rhs, prec)"
-    ")"
-    */
-
+  // interior
   if (consp(tree)) {
-
     if (op((Cons)tree).equals("=")) {
-      if (1 <= prec)
+      if (1 <= prec) // nested if statements test precedence
         return "(" + tojavab(lhs((Cons)tree), 1) + " = " + tojavab(rhs((Cons)tree), 1) + ")";
     return tojavab(lhs((Cons)tree), 1) + " = " + tojavab(rhs((Cons)tree), 1);
     }
-
     else if (op((Cons)tree).equals("+")) {
       if (5 <= prec)
         return "(" + tojavab(lhs((Cons)tree), 5) + " + " + tojavab(rhs((Cons)tree), 5) + ")";
     return tojavab(lhs((Cons)tree), 5) + " + " + tojavab(rhs((Cons)tree), 5);
     }
-
     else if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
       if (rest(rest((Cons)tree)) == null)
-        return "(-" + tojavab(lhs((Cons)tree), 6) + ")";
+        return "(-" + tojavab(lhs((Cons)tree), 6) + ")"; // always has parens.
       else if (5 <= prec)
         return "(" + tojavab(lhs((Cons)tree), 5) + " - " + tojavab(rhs((Cons)tree), 5) + ")";
     return tojavab(lhs((Cons)tree), 5) + " - " + tojavab(rhs((Cons)tree), 5);
     }
-
     else if (op((Cons)tree).equals("*")) {
       if (6 <= prec)
         return "(" + tojavab(lhs((Cons)tree), 6) + " * " + tojavab(rhs((Cons)tree), 6) + ")";
     return tojavab(lhs((Cons)tree), 6) + " * " + tojavab(rhs((Cons)tree), 6);
     }
-
     else if (op((Cons)tree).equals("/")) {
       if (6 <= prec)
         return "(" + tojavab(lhs((Cons)tree), 6) + " / " + tojavab(rhs((Cons)tree), 6) + ")";
     return tojavab(lhs((Cons)tree), 6) + " / " + tojavab(rhs((Cons)tree), 6);
     }
-
+    // accounts for functions not in operator list
     return "Math." + op((Cons)tree) + "(" + tojavab(lhs((Cons)tree), 0) + ")";
   }
-
+  // leaf
   return "" + tree;
-
 }
 
     // ****** your code ends here ******
@@ -392,7 +395,6 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("eval(expr6) = " + eval(expr6, alist));
         System.out.println("english(expr5) = " + english(expr5).toString());
         System.out.println("english(expr6) = " + english(expr6).toString());
-
         System.out.println("tojava(expr1) = " + tojava(expr1).toString());
         Cons expr7 = list("=", "x", list("*", list("+", "a", "b"), "c"));
         System.out.println("expr7 = " + expr7.toString());

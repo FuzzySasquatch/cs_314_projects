@@ -254,16 +254,35 @@ public static Integer eval (Object tree, Cons bindings) {
   else if (numberp(tree))
     return (Integer) tree;
   else if(stringp(tree)) {
-    System.out.println((Integer)second(assoc(tree, bindings)));
+    // System.out.println((Integer)second(assoc(tree, bindings)));
     return (Integer)second(assoc(tree, bindings));
   }
   return 0;
 }
 
-/*public static Cons english (Object tree) {
+public static Cons english (Object tree) {
+  if (consp(tree)) {
+    if (op((Cons)tree).equals("+"))
+      return append(append(list("the sum of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
+    else if (op((Cons)tree).equals("-")) {
+      if (rest(rest((Cons)tree)) == null)
+        return append(list("the negative of"), english(lhs((Cons)tree)));
+      return append(append(list("the difference of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
+    }
+    else if (op((Cons)tree).equals("*"))
+      return append(append(list("the product of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
+    else if (op((Cons)tree).equals("/"))
+      return append(append(list("the quotient of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
+    else if (op((Cons)tree).equals("expt"))
+      return append(append(list("the power of"), english(lhs((Cons)tree))), append(list("and"), english(rhs((Cons)tree))));
+    return null;
+  }
+  else if (numberp(tree) || stringp(tree))
+    return list(tree);
+  return null;
 }
 
-public static String tojava (Object tree) {
+/*public static String tojava (Object tree) {
    return (tojavab(tree, 0) + ";"); }
 
 public static String tojavab (Object tree, int prec) {
@@ -324,9 +343,9 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("expr6 = " + expr6.toString());
         System.out.println("alist = " + alist.toString());
         System.out.println("eval(expr6) = " + eval(expr6, alist));
-        /*System.out.println("english(expr5) = " + english(expr5).toString());
+        System.out.println("english(expr5) = " + english(expr5).toString());
         System.out.println("english(expr6) = " + english(expr6).toString());
-        System.out.println("tojava(expr1) = " + tojava(expr1).toString());
+        /*System.out.println("tojava(expr1) = " + tojava(expr1).toString());
         Cons expr7 = list("=", "x", list("*", list("+", "a", "b"), "c"));
         System.out.println("expr7 = " + expr7.toString());
         System.out.println("tojava(expr7) = " + tojava(expr7).toString());

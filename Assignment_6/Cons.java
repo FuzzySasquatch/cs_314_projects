@@ -201,10 +201,15 @@ public static Cons vars (Object expr) {
   return null;
 }
 
-/*public static boolean occurs(Object value, Object tree) {
+public static boolean occurs(Object value, Object tree) {
+  if (consp(tree))
+    return occurs(value, lhs((Cons)tree)) || occurs(value, rhs((Cons)tree));
+  else if (!consp(tree) && tree != null)
+    return tree.equals(value);
+  return false;
 }
 
-public static Integer eval (Object tree) {
+/*public static Integer eval (Object tree) {
 }
 
 public static Integer eval (Object tree, Cons bindings) {
@@ -236,7 +241,7 @@ public static String tojavab (Object tree, int prec) {
                                          "r"));
         System.out.println("expr2 = " + expr2.toString());
         System.out.println("vars(expr2) = " + vars(expr2).toString());
-        /*System.out.println("occurs(m, expr2) = " + occurs("m", expr2));
+        System.out.println("occurs(m, expr2) = " + occurs("m", expr2));
         System.out.println("occurs(7, expr2) = " + occurs(new Integer(7), expr2));
         Cons expr9 = list( "=", "v",
                                 list("*", "v0",
@@ -247,7 +252,7 @@ public static String tojavab (Object tree, int prec) {
         System.out.println("occurs(c, expr9) = " + occurs("c", expr9));
         System.out.println("occurs(m, expr9) = " + occurs("m", expr9));
 
-        Cons expr3 = list("+", new Integer(3), list("*", new Integer(5),
+        /*Cons expr3 = list("+", new Integer(3), list("*", new Integer(5),
                                                          new Integer(7)));
         System.out.println("expr3 = " + expr3.toString());
         System.out.println("eval(expr3) = " + eval(expr3));

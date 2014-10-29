@@ -161,76 +161,105 @@ public static void printanswer(String str, Object answer) {
 
     // ****** your code starts here ******
 
-
+// finds a path to a part of a cave that matches item
 public static Cons findpath(Object item, Object cave) {
   Cons path;
+  // dead end
   if (cave == null)
     return null;
+  // item found
   if (cave.equals(item))
     return list("done");
   if (((String)item).equals(first((Cons)cave)))
     return cons("first", findpath(item, first((Cons)cave)));
+  // explore rest
   if ((path = findpath(item, rest((Cons)cave))) != null)
     return cons("rest", path);
+  // explore first
   if ((path = findpath(item, first((Cons)cave))) != null)
     return cons("first", path);
   return null;
 }
 
-/*public static Object follow(Cons path, Object cave) {
- }
+// retrieves the contents of cave at a location specified by path
+public static Object follow(Cons path, Object cave) {
+  Object instruction = first(path);
+  if (path == null)
+    return null;
+  if (instruction.equals("first"))
+    return follow(rest(path), first((Cons)cave));
+  if (instruction.equals("rest"))
+    return follow(rest(path), rest((Cons)cave));
+  return cave;
+}
 
+// finds the item in tree2 corresponding to item in tree1
 public static Object corresp(Object item, Object tree1, Object tree2) {
+  Cons path = findpath(item, tree1);
+  return follow(path, tree2);
 }
 
 public static Cons solve(Cons e, String v) {
+  if (lhs(e).equals(v))
+    return e;
+  if (rhs(e).equals(v))
+    return cons(lhs(e), (Cons)rhs(e));
+  return null;
 }
 
-public static Double solveit (Cons equations, String var, Cons values) {
-}
+// public static Double solveit (Cons equations, String var, Cons values) {
+// }
 
  
     // Include your functions vars and eval from the previous assignment.
     // Modify eval as described in the assignment.
+
+// returns the set of variables in an expression
 public static Cons vars (Object expr) {
+  if (consp(expr))
+    return union(vars(lhs((Cons)expr)), vars(rhs((Cons)expr)));
+  else if (stringp(expr))
+    return cons(expr, null);
+  return null;
 }
 
-public static Double eval (Object tree, Cons bindings) {
-}*/
+// public static Double eval (Object tree, Cons bindings) {
+// }
 
 
     // ****** your code ends here ******
 
     public static void main( String[] args ) {
 
-        Cons cave = list("rocks", "gold", list("monster"));
-        Cons path = findpath("gold", cave);
-        printanswer("cave = " , cave);
-        printanswer("path = " , path);
+        // Cons cave = list("rocks", "gold", list("monster"));
+        // Cons path = findpath("gold", cave);
+        // printanswer("cave = " , cave);
+        // printanswer("path = " , path);
         // printanswer("follow = " , follow(path, cave));
 
-        Cons caveb = list(list(list("green", "eggs", "and"),
-                               list(list("ham"))),
-                          "rocks",
-                          list("monster",
-                               list(list(list("gold", list("monster"))))));
-        Cons pathb = findpath("gold", caveb);
-        printanswer("caveb = " , caveb);
-        printanswer("pathb = " , pathb);
-        /*printanswer("follow = " , follow(pathb, caveb));
+        // Cons caveb = list(list(list("green", "eggs", "and"),
+        //                        list(list("ham"))),
+        //                   "rocks",
+        //                   list("monster",
+        //                        list(list(list("gold", list("monster"))))));
+        // Cons pathb = findpath("gold", caveb);
+        // printanswer("caveb = " , caveb);
+        // printanswer("pathb = " , pathb);
+        // printanswer("follow = " , follow(pathb, caveb));
 
-        Cons treea = list(list("my", "eyes"),
-                          list("have", "seen", list("the", "light")));
-        Cons treeb = list(list("my", "ears"),
-                          list("have", "heard", list("the", "music")));
-        printanswer("treea = " , treea);
-        printanswer("treeb = " , treeb);
-        printanswer("corresp = " , corresp("light", treea, treeb));
+        // Cons treea = list(list("my", "eyes"),
+        //                   list("have", "seen", list("the", "light")));
+        // Cons treeb = list(list("my", "ears"),
+        //                   list("have", "heard", list("the", "music")));
+        // printanswer("treea = " , treea);
+        // printanswer("treeb = " , treeb);
+        // printanswer("corresp = " , corresp("light", treea, treeb));
         System.out.println("formulas = ");
         Cons frm = formulas;
         Cons vset = null;
         while ( frm != null ) {
             printanswer("   "  , ((Cons)first(frm)));
+            printanswer("vars = ", vars((Cons)first(frm)));
             vset = vars((Cons)first(frm));
             while ( vset != null ) {
                 printanswer("       "  ,
@@ -238,7 +267,7 @@ public static Double eval (Object tree, Cons bindings) {
                 vset = rest(vset); }
             frm = rest(frm); }
 
-        Cons bindings = list( list("a", (Double) 32.0),
+        /*Cons bindings = list( list("a", (Double) 32.0),
                               list("t", (Double) 4.0));
         printanswer("Eval:      " , rhs((Cons)first(formulas)));
         printanswer("  bindings " , bindings);

@@ -163,9 +163,21 @@ public static void printanswer(String str, Object answer) {
 
 
 public static Cons findpath(Object item, Object cave) {
- }
+  Cons path;
+  if (cave == null)
+    return null;
+  if (cave.equals(item))
+    return list("done");
+  if (((String)item).equals(first((Cons)cave)))
+    return cons("first", findpath(item, first((Cons)cave)));
+  if ((path = findpath(item, rest((Cons)cave))) != null)
+    return cons("rest", path);
+  if ((path = findpath(item, first((Cons)cave))) != null)
+    return cons("first", path);
+  return null;
+}
 
-public static Object follow(Cons path, Object cave) {
+/*public static Object follow(Cons path, Object cave) {
  }
 
 public static Object corresp(Object item, Object tree1, Object tree2) {
@@ -184,7 +196,7 @@ public static Cons vars (Object expr) {
 }
 
 public static Double eval (Object tree, Cons bindings) {
-}
+}*/
 
 
     // ****** your code ends here ******
@@ -195,7 +207,7 @@ public static Double eval (Object tree, Cons bindings) {
         Cons path = findpath("gold", cave);
         printanswer("cave = " , cave);
         printanswer("path = " , path);
-        printanswer("follow = " , follow(path, cave));
+        // printanswer("follow = " , follow(path, cave));
 
         Cons caveb = list(list(list("green", "eggs", "and"),
                                list(list("ham"))),
@@ -205,7 +217,7 @@ public static Double eval (Object tree, Cons bindings) {
         Cons pathb = findpath("gold", caveb);
         printanswer("caveb = " , caveb);
         printanswer("pathb = " , pathb);
-        printanswer("follow = " , follow(pathb, caveb));
+        /*printanswer("follow = " , follow(pathb, caveb));
 
         Cons treea = list(list("my", "eyes"),
                           list("have", "seen", list("the", "light")));
@@ -250,7 +262,7 @@ public static Double eval (Object tree, Cons bindings) {
                                             list(list("a", new Double(6.0)),
                                                  list("c", new Double(10.0)))));
 
-
+*/
       }
 
 }

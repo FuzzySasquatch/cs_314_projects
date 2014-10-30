@@ -216,7 +216,11 @@ public static Cons solve(Cons e, String v) {
   if (consp(rhs(e))) {
     Object op = op((Cons)rhs(e));
 
-    // + 
+    // unary -
+    if (op.equals("-") && rhs((Cons)rhs(e)) == null)
+      return solve(list("=", list(op, lhs(e)), lhs((Cons)rhs(e))), v);
+
+    // + and * 
     if (op.equals("+") || op.equals("*")) {
       op = second(assoc(op, opposites));
       if (solve(list("=", list(op, lhs(e), lhs((Cons)rhs(e))), rhs((Cons)rhs(e))), v) != null)
@@ -224,14 +228,34 @@ public static Cons solve(Cons e, String v) {
       return solve(list("=", list(op, lhs(e), rhs((Cons)rhs(e))), lhs((Cons)rhs(e))), v);
     }
 
-    // -
-    if (op.equals("-")) {
+    // binary - and /
+    if (op.equals("-") || op.equals("/")) {
       if (solve(list("=", list(op, lhs(e), rhs((Cons)rhs(e))), lhs((Cons)rhs(e))), v) != null) {
         op = second(assoc(op, opposites));
         return solve(list("=", list(op, lhs(e), rhs((Cons)rhs(e))), lhs((Cons)rhs(e))), v);
       }
       return solve(list("=", list(op, lhs((Cons)rhs(e)), lhs(e)), rhs((Cons)rhs(e))), v);
     }
+
+    if (op.equals("log") || op.equals("exp")) {
+      op = second(assoc(op, opposites));
+      if (lhs((Cons)lhs((Cons)rhs(e))) == null)
+        return solve(list("=", list(op, list(lhs(e))), first((Cons)lhs((Cons)rhs(e)))), v);
+      return solve(list("=", list(op, list(lhs(e))), list( op((Cons)lhs((Cons)rhs(e))), lhs((Cons)lhs((Cons)rhs(e))), rhs((Cons)lhs((Cons)rhs(e))) ) ), v);
+    }
+
+    if (op.equals("expt")) {
+      op = second(assoc(op, opposites));
+      return solve(list("=", list(op, list(lhs(e))), lhs((Cons)rhs(e))), v); 
+    }
+
+    if (op.equals("sqrt")) {
+      op = second(assoc(op, opposites));
+      if (lhs((Cons)lhs((Cons)rhs(e))) == null)
+        return solve(list("=", list(op, lhs(e), new Integer(2)), first((Cons)lhs((Cons)rhs(e)))), v); 
+      return solve(list("=", list(op, lhs(e), new Integer(2)), list( op((Cons)lhs((Cons)rhs(e))), lhs((Cons)lhs((Cons)rhs(e))), rhs((Cons)lhs((Cons)rhs(e))) ) ), v);
+    }
+
     
     
 /*    Cons e2, e3;
@@ -332,13 +356,29 @@ public static Double eval (Object tree, Cons bindings) {
         // * and +
         // printanswer(" ", solve(list("=", "x", list("*", "a", "b")), "a"));
 
-        printanswer(" ", solve(list("=", "x", list("-", "a", "b")), "a"));
-        // printanswer(" ", solve(list("=", "c", list("sqrt", list("+", "a", "b"))), "a"));
-        // printanswer(" ", solve(list("=", "x", list("expt", "v", new Integer(2))), "v"));
+        // / and binary -
+        // printanswer(" ", solve(list("=", "x", list("/", "a", "b")), "b"));
 
-        // printanswer(" ", solve(list( "=", "f", list("/", list("*", list("expt", "v", new Integer(2)), "m"
-        //                                  ),
-        //                        "r")), "v"));
+        // unary -
+        // printanswer(" ", solve(list("=", "a", list("-", "b")), "b"));
+
+        // log and exp
+        // printanswer(" ", solve(list("=", "x", list("exp", list("a"))), "a"));
+        // printanswer(" ", solve(list("=", "x", list("log", list("-", "a", "b"))), "b"));
+
+        // // expt to sqrt
+        // printanswer(" ", solve(list("=", "x", list("expt", "a", new Integer(2))), "a"));
+
+        // // sqrt to expt
+        // printanswer(" ", solve(list("=", "x", list("sqrt", list("a"))), "a"));
+        // printanswer(" ", solve(list("=", "x", list("sqrt", list("+", "a", "b"))), "b"));  
+
+        printanswer(" ", solve(list("=", "c", list("sqrt", list("+", "a", "b"))), "a"));
+        printanswer(" ", solve(list("=", "x", list("expt", "v", new Integer(2))), "v"));
+
+        printanswer(" ", solve(list( "=", "f", list("/", list("*", list("expt", "v", new Integer(2)), "m"
+                                         ),
+                               "r")), "v"));
 
 
         // Cons cave = list("rocks", "gold", list("monster"));

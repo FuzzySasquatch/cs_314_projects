@@ -232,8 +232,8 @@ public static Cons solve(Cons e, String v) {
     if (op.equals("log") || op.equals("exp")) {
       op = second(assoc(op, opposites));
       if (lhs((Cons)lhs((Cons)rhs(e))) == null)
-        return solve(list("=", list(op, list(lhs(e))), first((Cons)lhs((Cons)rhs(e)))), v);
-      return solve(list("=", list(op, list(lhs(e))), list( op((Cons)lhs((Cons)rhs(e))), lhs((Cons)lhs((Cons)rhs(e))), rhs((Cons)lhs((Cons)rhs(e))) ) ), v);
+        return solve(list("=", list(op, lhs(e)), first((Cons)lhs((Cons)rhs(e)))), v);
+      return solve(list("=", list(op, lhs(e)), list( op((Cons)lhs((Cons)rhs(e))), lhs((Cons)lhs((Cons)rhs(e))), rhs((Cons)lhs((Cons)rhs(e))) ) ), v);
     }
     // expt to sqrt
     if (op.equals("expt")) {
@@ -248,12 +248,34 @@ public static Cons solve(Cons e, String v) {
       return solve(list("=", list(op, lhs(e), new Integer(2)), list( op((Cons)lhs((Cons)rhs(e))), lhs((Cons)lhs((Cons)rhs(e))), rhs((Cons)lhs((Cons)rhs(e))) ) ), v);
     }
   }
-  // rhs is not v and not an operator
+  // rhs is not v or an operator
   return null;
 }
 
-// public static Double solveit (Cons equations, String var, Cons values) {
-// }
+// matches an equation with given variables, solves the equation for a
+// a given variable and evaluates
+public static Double solveit (Cons equations, String var, Cons values) {
+  if (equations == null)
+    return null;
+  // create of list of given variables
+  Cons values2 = cons(var, null);
+  Cons tempVals = values;
+  while (tempVals != null) {
+    values2 = cons(first((Cons)first(tempVals)), values2);
+    tempVals = rest(tempVals);
+  }
+  // pull the first equations and its variables
+  Cons equation = (Cons) first(equations);
+  Cons vars = vars(equation);
+  // test to see if the current equation is the right one
+  if (setEqual(vars, values2)) {
+    // solve for the given varible and evaluate the expression
+    Cons tree = solve(equation, var);
+    return eval(rhs(tree), values);
+  }
+  // if not a match, move to the next equation
+  return solveit(rest(equations), var, values);
+}
 
 // returns the set of variables in an expression
 public static Cons vars (Object expr) {
@@ -266,7 +288,6 @@ public static Cons vars (Object expr) {
 
 // assigns values to variables and evaluates the resulting expression
 public static Double eval (Object tree, Cons bindings) {
-  System.out.println("Current tree = " + tree);
   // interior
   if (consp(tree)) {
     // +
@@ -287,8 +308,11 @@ public static Double eval (Object tree, Cons bindings) {
     if (op((Cons)tree).equals("/"))
       return eval(lhs((Cons)tree), bindings) / eval(rhs((Cons)tree), bindings);
     // expt
-    if (op((Cons)tree).equals("expt") || op((Cons)tree).equals("exp"))
+    if (op((Cons)tree).equals("expt"))
       return Math.pow(eval(lhs((Cons)tree), bindings), eval(rhs((Cons)tree), bindings));
+    // exp
+    if (op((Cons)tree).equals("exp"))
+      return Math.exp(eval(lhs((Cons)tree), bindings));
     // sqrt
     if (op((Cons)tree).equals("sqrt")) {
       return Math.sqrt(eval(lhs((Cons)tree), bindings));
@@ -320,68 +344,35 @@ public static Double eval (Object tree, Cons bindings) {
     // ****** your code ends here ******
 
     public static void main( String[] args ) {
-        /*// base cases
-        printanswer(" ", solve(list("=", "x", "3"), "x"));
-        printanswer(" ", solve(list("=", "3", "x"), "x"));
-        printanswer(" ", solve(list("=", "3", "y"), "x"));
 
-        // * and +
-        printanswer(" ", solve(list("=", "x", list("*", "a", "b")), "a"));
+        Cons cave = list("rocks", "gold", list("monster"));
+        Cons path = findpath("gold", cave);
+        printanswer("cave = " , cave);
+        printanswer("path = " , path);
+        printanswer("follow = " , follow(path, cave));
 
-        // / and binary -
-        printanswer(" ", solve(list("=", "x", list("/", "a", "b")), "b"));
+        Cons caveb = list(list(list("green", "eggs", "and"),
+                               list(list("ham"))),
+                          "rocks",
+                          list("monster",
+                               list(list(list("gold", list("monster"))))));
+        Cons pathb = findpath("gold", caveb);
+        printanswer("caveb = " , caveb);
+        printanswer("pathb = " , pathb);
+        printanswer("follow = " , follow(pathb, caveb));
 
-        // unary -
-        printanswer(" ", solve(list("=", "a", list("-", "b")), "b"));
-
-        // log and exp
-        printanswer(" ", solve(list("=", "x", list("exp", list("a"))), "a"));
-        printanswer(" ", solve(list("=", "x", list("log", list("-", "a", "b"))), "b"));
-
-        // expt to sqrt
-        printanswer(" ", solve(list("=", "x", list("expt", "a", new Integer(2))), "a"));
-
-        // sqrt to expt
-        printanswer(" ", solve(list("=", "x", list("sqrt", list("a"))), "a"));
-        printanswer(" ", solve(list("=", "x", list("sqrt", list("+", "a", "b"))), "b"));  
-
-        printanswer(" ", solve(list("=", "c", list("sqrt", list("+", "a", "b"))), "a"));
-        printanswer(" ", solve(list("=", "x", list("expt", "v", new Integer(2))), "v"));
-
-        printanswer(" ", solve(list( "=", "f", list("/", list("*", list("expt", "v", new Integer(2)), "m"
-                                         ),
-                               "r")), "v"));*/
-
-
-        // Cons cave = list("rocks", "gold", list("monster"));
-        // Cons path = findpath("gold", cave);
-        // printanswer("cave = " , cave);
-        // printanswer("path = " , path);
-        // printanswer("follow = " , follow(path, cave));
-
-        // Cons caveb = list(list(list("green", "eggs", "and"),
-        //                        list(list("ham"))),
-        //                   "rocks",
-        //                   list("monster",
-        //                        list(list(list("gold", list("monster"))))));
-        // Cons pathb = findpath("gold", caveb);
-        // printanswer("caveb = " , caveb);
-        // printanswer("pathb = " , pathb);
-        // printanswer("follow = " , follow(pathb, caveb));
-
-        // Cons treea = list(list("my", "eyes"),
-        //                   list("have", "seen", list("the", "light")));
-        // Cons treeb = list(list("my", "ears"),
-        //                   list("have", "heard", list("the", "music")));
-        // printanswer("treea = " , treea);
-        // printanswer("treeb = " , treeb);
-        // printanswer("corresp = " , corresp("light", treea, treeb));
-        // System.out.println("formulas = ");
+        Cons treea = list(list("my", "eyes"),
+                          list("have", "seen", list("the", "light")));
+        Cons treeb = list(list("my", "ears"),
+                          list("have", "heard", list("the", "music")));
+        printanswer("treea = " , treea);
+        printanswer("treeb = " , treeb);
+        printanswer("corresp = " , corresp("light", treea, treeb));
+        System.out.println("formulas = ");
         Cons frm = formulas;
         Cons vset = null;
         while ( frm != null ) {
             printanswer("   "  , ((Cons)first(frm)));
-            // printanswer("vars = ", vars((Cons)first(frm)));
             vset = vars((Cons)first(frm));
             while ( vset != null ) {
                 printanswer("       "  ,
@@ -389,13 +380,13 @@ public static Double eval (Object tree, Cons bindings) {
                 vset = rest(vset); }
             frm = rest(frm); }
 
-        // Cons bindings = list( list("a", (Double) 32.0),
-        //                       list("t", (Double) 4.0));
-        // printanswer("Eval:      " , rhs((Cons)first(formulas)));
-        // printanswer("  bindings " , bindings);
-        // printanswer("  result = " , eval(rhs((Cons)first(formulas)), bindings));
+        Cons bindings = list( list("a", (Double) 32.0),
+                              list("t", (Double) 4.0));
+        printanswer("Eval:      " , rhs((Cons)first(formulas)));
+        printanswer("  bindings " , bindings);
+        printanswer("  result = " , eval(rhs((Cons)first(formulas)), bindings));
 
-       /* printanswer("Tower: " , solveit(formulas, "h0",
+        printanswer("Tower: " , solveit(formulas, "h0",
                                             list(list("h", new Double(0.0)),
                                                  list("t", new Double(4.0)))));
 
@@ -413,7 +404,7 @@ public static Double eval (Object tree, Cons bindings) {
                                             list(list("a", new Double(6.0)),
                                                  list("c", new Double(10.0)))));
 
-*/
+
       }
 
 }

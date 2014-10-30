@@ -200,10 +200,54 @@ public static Object corresp(Object item, Object tree1, Object tree2) {
 }
 
 public static Cons solve(Cons e, String v) {
-  if (lhs(e).equals(v))
+  //System.out.println("e is " + e);
+  
+  // Object op = op(e);
+  // Object rhs = rhs(e);
+  // Object lhs = lhs(e);
+  if (lhs(e).equals(v)) {
+    // System.out.println("e is " + e);
     return e;
-  if (rhs(e).equals(v))
-    return cons(lhs(e), (Cons)rhs(e));
+  }
+
+  if (rhs(e).equals(v)) {
+    // System.out.println("e is " + e);
+    return list(op(e), rhs(e), lhs(e));
+  }
+
+  
+
+  if (consp(rhs(e))) {
+    Object op = op((Cons)rhs(e));
+    op = second(assoc(op, opposites));
+    //System.out.println(op.equals("expt"));
+    //System.out.println("first of lhs of rhs is " + first((Cons)lhs((Cons)rhs(e))));
+
+    
+
+    if ((solve(list("=", list(op, lhs(e), lhs((Cons)rhs(e))), rhs((Cons)rhs(e))), v)) != null) {
+      // option 1
+      return solve(list("=", list(op, lhs(e), lhs((Cons)rhs(e))), rhs((Cons)rhs(e))), v);
+    }
+
+
+
+    if ((solve(list("=", list(op, lhs(e), rhs((Cons)rhs(e))), lhs((Cons)rhs(e))), v)) != null) {
+      // sqrt
+      if (op.equals("sqrt"))
+        return solve(list("=", list(op, lhs(e)), lhs((Cons)rhs(e))), v);
+      // expt
+      if (op.equals("expt")) {
+        return solve(list("=", list(op, lhs(e), new Integer(2)), first((Cons)lhs((Cons)rhs(e)))), v);
+      }
+      // option 2
+      return solve(list("=", list(op, lhs(e), rhs((Cons)rhs(e))), lhs((Cons)rhs(e))), v);
+    }
+
+    
+
+  }
+  // System.out.println("rhs != v and not Cons.");
   return null;
 }
 
@@ -223,13 +267,88 @@ public static Cons vars (Object expr) {
   return null;
 }
 
-// public static Double eval (Object tree, Cons bindings) {
-// }
+// assigns values to variables and evaluates the resulting expression
+public static Double eval (Object tree, Cons bindings) {
+  // interior
+  if (consp(tree)) {
+    // +
+    if (op((Cons)tree).equals("+"))
+      return eval(lhs((Cons)tree), bindings) + eval(rhs((Cons)tree), bindings);
+    // - and unary minus
+    if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
+      if (rest(rest((Cons)tree)) == null) {
+        return - eval(lhs((Cons)tree), bindings);
+      }
+      return eval(lhs((Cons)tree), bindings) - eval(rhs((Cons)tree), bindings);
+    }
+    // *
+    if (op((Cons)tree).equals("*"))
+      return eval(lhs((Cons)tree), bindings) * eval(rhs((Cons)tree), bindings);
+    // /
+    if (op((Cons)tree).equals("/"))
+      return eval(lhs((Cons)tree), bindings) / eval(rhs((Cons)tree), bindings);
+    // expt
+    if (op((Cons)tree).equals("expt") || op((Cons)tree).equals("exp"))
+      return Math.pow(eval(lhs((Cons)tree), bindings), eval(rhs((Cons)tree), bindings));
+    return null;
+  }
+  // leaf
+  if (integerp(tree))
+    return ((Integer)tree).doubleValue();
+  if (numberp(tree)) {
+    System.out.println(tree);
+    return (Double) tree;
+  }
+  // assigns values to variables
+  if(stringp(tree)) {
+    return ((Double)second(assoc(tree, bindings)));
+  }
+  return null;
+}
+
+/*// evaluates an expression tree
+public static Integer eval (Object tree) {
+  // interior
+  if (consp(tree)) {
+    if (op((Cons)tree).equals("+"))
+      return eval(lhs((Cons)tree)) + eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("-")) {
+      // accounts for unary minus
+      if (rest(rest((Cons)tree)) == null)
+        return - eval(lhs((Cons)tree));
+      return eval(lhs((Cons)tree)) - eval(rhs((Cons)tree));
+    }
+    else if (op((Cons)tree).equals("*"))
+      return eval(lhs((Cons)tree)) * eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("/"))
+      return eval(lhs((Cons)tree)) / eval(rhs((Cons)tree));
+    else if (op((Cons)tree).equals("expt"))
+      return pow(eval(lhs((Cons)tree)), eval(rhs((Cons)tree)));
+    return null;
+  }
+  // leaf
+  else if (numberp(tree))
+    return (Integer) tree;
+  return null;
+}*/
 
 
     // ****** your code ends here ******
 
     public static void main( String[] args ) {
+
+        // printanswer(" ", solve(list("=", "x", "3"), "x"));
+        // printanswer(" ", solve(list("=", "3", "x"), "x"));
+        // printanswer(" ", solve(list("=", "3", "y"), "x"));
+
+        // printanswer(" ", solve(list("=", "x", list("+", "a", "b")), "a"));
+        //printanswer(" ", solve(list("=", "c", list("sqrt", list("+", "a", "b"))), "a"));
+        // printanswer(" ", solve(list("=", "x", list("expt", "v", new Integer(2))), "v"));
+
+        // printanswer(" ", solve(list( "=", "f", list("/", list("*", list("expt", "v", new Integer(2)), "m"
+        //                                  ),
+        //                        "r")), "v"));
 
         // Cons cave = list("rocks", "gold", list("monster"));
         // Cons path = findpath("gold", cave);
@@ -254,26 +373,26 @@ public static Cons vars (Object expr) {
         // printanswer("treea = " , treea);
         // printanswer("treeb = " , treeb);
         // printanswer("corresp = " , corresp("light", treea, treeb));
-        System.out.println("formulas = ");
-        Cons frm = formulas;
-        Cons vset = null;
-        while ( frm != null ) {
-            printanswer("   "  , ((Cons)first(frm)));
-            printanswer("vars = ", vars((Cons)first(frm)));
-            vset = vars((Cons)first(frm));
-            while ( vset != null ) {
-                printanswer("       "  ,
-                    solve((Cons)first(frm), (String)first(vset)) );
-                vset = rest(vset); }
-            frm = rest(frm); }
+        // System.out.println("formulas = ");
+        // Cons frm = formulas;
+        // Cons vset = null;
+        // while ( frm != null ) {
+        //     printanswer("   "  , ((Cons)first(frm)));
+        //     // printanswer("vars = ", vars((Cons)first(frm)));
+        //     vset = vars((Cons)first(frm));
+        //     while ( vset != null ) {
+        //         printanswer("       "  ,
+        //             solve((Cons)first(frm), (String)first(vset)) );
+        //         vset = rest(vset); }
+        //     frm = rest(frm); }
 
-        /*Cons bindings = list( list("a", (Double) 32.0),
+        Cons bindings = list( list("a", (Double) 32.0),
                               list("t", (Double) 4.0));
         printanswer("Eval:      " , rhs((Cons)first(formulas)));
         printanswer("  bindings " , bindings);
         printanswer("  result = " , eval(rhs((Cons)first(formulas)), bindings));
 
-        printanswer("Tower: " , solveit(formulas, "h0",
+       /* printanswer("Tower: " , solveit(formulas, "h0",
                                             list(list("h", new Double(0.0)),
                                                  list("t", new Double(4.0)))));
 

@@ -254,10 +254,6 @@ public static Cons solve(Cons e, String v) {
 // public static Double solveit (Cons equations, String var, Cons values) {
 // }
 
- 
-    // Include your functions vars and eval from the previous assignment.
-    // Modify eval as described in the assignment.
-
 // returns the set of variables in an expression
 public static Cons vars (Object expr) {
   if (consp(expr))
@@ -269,6 +265,7 @@ public static Cons vars (Object expr) {
 
 // assigns values to variables and evaluates the resulting expression
 public static Double eval (Object tree, Cons bindings) {
+  System.out.println("Current tree = " + tree);
   // interior
   if (consp(tree)) {
     // +
@@ -291,48 +288,33 @@ public static Double eval (Object tree, Cons bindings) {
     // expt
     if (op((Cons)tree).equals("expt") || op((Cons)tree).equals("exp"))
       return Math.pow(eval(lhs((Cons)tree), bindings), eval(rhs((Cons)tree), bindings));
-    return null;
+    // sqrt
+    if (op((Cons)tree).equals("sqrt")) {
+      return Math.sqrt(eval(lhs((Cons)tree), bindings));
+    }
+    // log
+    if (op((Cons)tree).equals("log"))
+      return Math.log(eval(lhs((Cons)tree), bindings));
+    // (leaves)
+    if (stringp(first((Cons)tree)))
+      return ((Double)second(assoc(first((Cons)tree), bindings)));
+    if (integerp(first((Cons)tree)))
+      return ((Integer)first((Cons)tree)).doubleValue();
+    if (numberp(first((Cons)tree))) 
+      return (Double)first((Cons)tree);
+    return null; 
   }
-  // leaf
+  // leaves
   if (integerp(tree))
     return ((Integer)tree).doubleValue();
-  if (numberp(tree)) {
-    System.out.println(tree);
+  if (numberp(tree)) 
     return (Double) tree;
-  }
   // assigns values to variables
   if(stringp(tree)) {
     return ((Double)second(assoc(tree, bindings)));
   }
   return null;
 }
-
-/*// evaluates an expression tree
-public static Integer eval (Object tree) {
-  // interior
-  if (consp(tree)) {
-    if (op((Cons)tree).equals("+"))
-      return eval(lhs((Cons)tree)) + eval(rhs((Cons)tree));
-    else if (op((Cons)tree).equals("-")) {
-      // accounts for unary minus
-      if (rest(rest((Cons)tree)) == null)
-        return - eval(lhs((Cons)tree));
-      return eval(lhs((Cons)tree)) - eval(rhs((Cons)tree));
-    }
-    else if (op((Cons)tree).equals("*"))
-      return eval(lhs((Cons)tree)) * eval(rhs((Cons)tree));
-    else if (op((Cons)tree).equals("/"))
-      return eval(lhs((Cons)tree)) / eval(rhs((Cons)tree));
-    else if (op((Cons)tree).equals("expt"))
-      return pow(eval(lhs((Cons)tree)), eval(rhs((Cons)tree)));
-    return null;
-  }
-  // leaf
-  else if (numberp(tree))
-    return (Integer) tree;
-  return null;
-}*/
-
 
     // ****** your code ends here ******
 

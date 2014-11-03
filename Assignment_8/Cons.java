@@ -502,17 +502,18 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
     //           (?combine (?function (first tree))
     //                     (?function (rest tree)))
     //           ?baseanswer))
-    /*public static Cons substitutions = readlist( list(
+    public static Cons substitutions = readlist( list(
        "( (?function addnums) (?combine +) (?baseanswer (if (numberp tree) tree 0)))",
 
        // add to the following
-       "( (?function countstrings) )",
-       "( (?function copytree) )",
-       "( (?function mintree) )",
-       "( (?function conses) )"
+       // don't forget to add back comma at end of next line!!!
+       "( (?function countstrings) (?combine +) (?baseanswer (if (stringp tree) 1 0)))",
+       "( (?function copytree) (?combine cons) (?baseanswer tree)",
+       "( (?function mintree) (?combine min) (?baseanswer tree))",
+       "( (?function conses) (?combine add1) (?baseanswer 0))"
        ));
-
-    public static Cons optpats = readlist( list(
+  
+    /*public static Cons optpats = readlist( list(
        "( (+ ?x 0)   ?x)",
        "( (+ 0 ?x)   ?x)",
        "( (expt ?x 1) ?x)",
@@ -610,11 +611,11 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
         Cons binaryfn = (Cons) reader(
           "(defun ?function (tree) (if (consp tree) (?combine (?function (first tree)) (?function (rest tree))) ?baseanswer))");
 
-        /*for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
+        for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
             Object trans = sublis((Cons) first(ptr), binaryfn);
             System.out.println("sublis:  " + trans.toString()); }
 
-        Cons opttests = readlist( list(
+        /*Cons opttests = readlist( list(
           "(+ 0 foo)",
           "(* fum 1)",
           "(- (- y))",

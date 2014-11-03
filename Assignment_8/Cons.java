@@ -415,6 +415,9 @@ public static Double eval (Object tree, Cons bindings) {
     if (op((Cons)tree).equals("*"))
       return eval(lhs((Cons)tree), bindings) * eval(rhs((Cons)tree), bindings);
     // /
+    // System.out.println("Cur eq = " + tree);
+    // System.out.println("bindings = " + bindings);
+    // System.out.println(eval(rhs((Cons)tree), bindings));
     if (op((Cons)tree).equals("/"))
       return eval(lhs((Cons)tree), bindings) / eval(rhs((Cons)tree), bindings);
     // expt
@@ -453,7 +456,42 @@ public static Double eval (Object tree, Cons bindings) {
 
     // new for this assignment
 
+// attempts to solve the list of equations eqn for variable v
+// given an assoc list of vals
 public static Double solveqns(Cons eqns, Cons vals, String v) {
+ if (assoc(v, vals) != null)
+    return (Double) second(assoc(v, vals));
+  Cons vars = vars(first(eqns));
+  int unknown = 0;
+  String var = "";
+  // System.out.println(vars);
+  // is there another way?
+  while (vars != null) {
+    //System.out.println("Vars = " + vars);
+    
+    if (assoc(first(vars), vals) == null) {
+      unknown++;
+      var = (String) first(vars);
+    }
+    vars = rest(vars);
+  }
+  
+  // System.out.println("vals = " + vals);
+  // System.out.println("Unknowns = " + unknown);
+  if (unknown == 1) {
+    Object tree = solve((Cons)first(eqns), var);
+    // System.out.println(tree);
+    // don't forget to remove the = and variable
+    Double val = eval(rhs((Cons)tree), vals);
+    // System.out.println(vals);
+    if (tree != null && val != null) {
+      return solveqns(rest(eqns), cons(list(var, val), vals), v);
+    }
+  }
+  if (rest(eqns) == null)
+    return null;
+  return solveqns(rest(eqns), vals, v);
+  
 }
 
     // Question 2 of Assignment 8
@@ -464,7 +502,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
     //           (?combine (?function (first tree))
     //                     (?function (rest tree)))
     //           ?baseanswer))
-    public static Cons substitutions = readlist( list(
+    /*public static Cons substitutions = readlist( list(
        "( (?function addnums) (?combine +) (?baseanswer (if (numberp tree) tree 0)))",
 
        // add to the following
@@ -510,8 +548,8 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        // add more
 
        "( (?fun ?x)   (znothing ?fun zlparen ?x zrparen))"  // must be last
-       ));
-
+       ));"*/
+    
 
     // ****** your code ends here ******
 
@@ -572,7 +610,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
         Cons binaryfn = (Cons) reader(
           "(defun ?function (tree) (if (consp tree) (?combine (?function (first tree)) (?function (rest tree))) ?baseanswer))");
 
-        for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
+        /*for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
             Object trans = sublis((Cons) first(ptr), binaryfn);
             System.out.println("sublis:  " + trans.toString()); }
 
@@ -641,7 +679,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             Cons trans = (Cons) transformfp(javapats, restr);
             System.out.println("       " + trans.toString());
             javaprintlist(trans, 0);
-            System.out.println(); }
+            System.out.println(); } */
 
       }
 

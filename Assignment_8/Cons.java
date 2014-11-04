@@ -536,21 +536,15 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        // expt
        "( (expt ?x 1) ?x)",
        "( (expt ?x 0) 1)",
-
-       "((/ (expt ?x ?u) (expt ?x ?v))   (expt ?x (- ?u ?v)))",
-
+       "( (/ (expt ?x ?u) (expt ?x ?v))   (expt ?x (- ?u ?v)))",
        "( (/ (* ?y (expt ?x ?u)) (expt ?x ?v))   (* ?y (expt ?x (- ?u ?v))))",
-
        "( (expt ?x (- ?y))   (/ 1 (expt ?x ?y)))",
 
-   
-       "((* (/ 1 ?u) ?v)   (/ ?v ?u))",
-
-       "((/ (* ?y ?u) (* ?y ?v))   (/ ?u ?v))",
-       "((/ (* ?y ?u) (* ?v ?y))   (/ ?u ?v))",
-
-       "((* ?y (/ 1 ?x))   (/ ?y ?x))",
-
+       // division/multiplication
+       "( (* (/ 1 ?u) ?v)   (/ ?v ?u))",
+       "( (/ (* ?y ?u) (* ?y ?v))   (/ ?u ?v))",
+       "( (/ (* ?y ?u) (* ?v ?y))   (/ ?u ?v))",
+       "( (* ?y (/ 1 ?x))   (/ ?y ?x))",
 
        // multiplication
        "( (* ?x 0)   0)",
@@ -561,7 +555,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        // simple multiplication
 
        // subtraction
-       "( (- (- ?x ?y ))   (+ ?x ?y))",
+       "( (- (- ?x ?y ))   (- ?x ?y))",
        "( (- ?x ?x)   0)",
        "( (- (- ?x))   ?x)",
 
@@ -659,7 +653,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (deriv ?y ?x)   0)"   // this must be last!
        ));
 
-    /*public static Cons javarestructpats = readlist( list(
+    public static Cons javarestructpats = readlist( list(
        "( (return (if ?test ?then)) (if ?test (return ?then)) )",
        "( (return (if ?test ?then ?else)) (if ?test (return ?then) (return  ?else)) )",
        "( (defun ?fun ?args ?code) (zdefun ?fun (arglist ?args) (progn (return ?code))) )",
@@ -678,8 +672,11 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (first ?x) (znothing first zlparen zlparen Cons zrparen ?x zrparen) )",
        // add more
 
+       
+
+
        "( (?fun ?x)   (znothing ?fun zlparen ?x zrparen))"  // must be last
-       ));"*/
+       ));
     
 
     // ****** your code ends here ******
@@ -781,7 +778,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             Object transopt = transformfp(optpats, trans);
             System.out.println("  opt:  " + transopt.toString()); }
 
-        /*Cons javatests = readlist( list(
+        Cons javatests = readlist( list(
           "(* fum 7)",
           "(setq x y)",
           "(setq x (+ x 1))",
@@ -802,7 +799,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             System.out.println(); }
 
 
-        for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
+       /* for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
             Object ltrans = sublis((Cons) first(ptr), binaryfn);
             System.out.println("sublis:  " + ltrans.toString());
             Cons restr = (Cons) transformfp(javarestructpats, ltrans);

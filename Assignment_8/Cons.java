@@ -503,33 +503,163 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
     //                     (?function (rest tree)))
     //           ?baseanswer))
     public static Cons substitutions = readlist( list(
-       "( (?function addnums) (?combine +) (?baseanswer (if (numberp tree) tree 0)))",
-
-       // add to the following
-       // don't forget to add back comma at end of next line!!!
+       "( (?function addnums) (?combine +) (?baseanswer (if (numberp tree) tree 0)))",       
        "( (?function countstrings) (?combine +) (?baseanswer (if (stringp tree) 1 0)))",
        "( (?function copytree) (?combine cons) (?baseanswer tree)",
        "( (?function mintree) (?combine min) (?baseanswer tree))",
        "( (?function conses) (?combine add1) (?baseanswer 0))"
        ));
   
-    /*public static Cons optpats = readlist( list(
+    public static Cons optpats = readlist( list(
+
+       // addition
        "( (+ ?x 0)   ?x)",
        "( (+ 0 ?x)   ?x)",
-       "( (expt ?x 1) ?x)",
-       // add more
 
+       // simple addition
+       "(  (+ 1 1)   2)",
+       "(  (+ 2 1)   3)",
+       "(  (+ 3 1)   4)",
+       "(  (+ 4 1)   5)",
+       "(  (+ 5 1)   6)",
+       "(  (+ 6 1)   7)",
+       "(  (+ 7 1)   8)",
+       "(  (+ 8 1)   9)",
+       "(  (+ 9 1)   10)",
+       "(  (+ 10 1)   11)",
+       "(  (+ 11 1)   12)",
+       "(  (+ 12 1)   13)",
+       "(  (+ 13 1)   14)",
+       "(  (+ 14 1)   15)",
+       "(  (+ 15 1)   16)",
+
+       // expt
+       "( (expt ?x 1) ?x)",
+       "( (expt ?x 0) 1)",
+
+       "((/ (expt ?x ?u) (expt ?x ?v))   (expt ?x (- ?u ?v)))",
+
+       "( (/ (* ?y (expt ?x ?u)) (expt ?x ?v))   (* ?y (expt ?x (- ?u ?v))))",
+
+       "( (expt ?x (- ?y))   (/ 1 (expt ?x ?y)))",
+
+   
+       "((* (/ 1 ?u) ?v)   (/ ?v ?u))",
+
+       "((/ (* ?y ?u) (* ?y ?v))   (/ ?u ?v))",
+       "((/ (* ?y ?u) (* ?v ?y))   (/ ?u ?v))",
+
+       "((* ?y (/ 1 ?x))   (/ ?y ?x))",
+
+
+       // multiplication
+       "( (* ?x 0)   0)",
+       "( (* 0 ?x)   0)",
+       "( (* ?x 1)   ?x)",
+       "( (* 1 ?x)   ?x)",
+
+       // simple multiplication
+
+       // subtraction
+       "( (- (- ?x ?y ))   (+ ?x ?y))",
+       "( (- ?x ?x)   0)",
+       "( (- (- ?x))   ?x)",
+
+       // simple subtraction
+       "(  (- 2 1)   1)",
+       "(  (- 3 1)   2)",
+       "(  (- 4 1)   3)",
+       "(  (- 5 1)   4)",
+       "(  (- 6 1)   5)",
+       "(  (- 7 1)   6)",
+       "(  (- 8 1)   7)",
+       "(  (- 9 1)   8)",
+       "(  (- 10 1)   9)",
+       "(  (- 11 1)   10)",
+       "(  (- 12 1)   11)",
+       "(  (- 13 1)   12)",
+       "(  (- 14 1)   13)",
+       "(  (- 15 1)   14)",
+       "(  (- 16 1)   15)",
+       "(  (- 2 3)   (- 1))",
+
+       // division
+       "( (/ 0 ?x)   0)",
+       "( (/ ?x ?x)   1)",
+       "( (/ ?x 1)   ?x)",
+       "( (/ (* ?y ?x) ?y)   ?x)",
+
+       // ln
+       "( (+ (log x?) (log?y))   (log (* ?x ?y)))",
+       "( (- (log x?) (log ?y))   (log (/ ?x ?y)))",
+       "( (log 1)   0)",
+
+       // exp with base e
+       "( (exp 0)   1)",
+
+       // square root
+       "( (sqrt (* ?x ?x))   ?x)",
+       "( (sqrt (expt ?x 2))   ?x)",
+
+       // simple square root
+       "( (sqrt 0)   0)",
+       "( (sqrt 1)   1)",
+       "( (sqrt 4)   2)",
+       "( (sqrt 9)   3)",
+       "( (sqrt 16)   4)",
+       "( (sqrt 25)   5)",
+       "( (sqrt 36)   6)",
+       "( (sqrt 49)   7)",
+       "( (sqrt 64)   8)",
+       "( (sqrt 81)   9)",
+       "( (sqrt 100)   10)",
+       "( (sqrt 121)   11)",
+       "( (sqrt 144)   12)"
        ));
 
     public static Cons derivpats = readlist( list(
        "( (deriv ?x ?x)   1)",
+
        "( (deriv (+ ?u ?v) ?x)  (+ (deriv ?u ?x) (deriv ?v ?x)))",
-       // add more
+
+       "( (deriv (- ?u ?v) ?x)  (- (deriv ?u ?x) (deriv ?v ?x)))",
+
+       "( (deriv (- ?v) ?x)  (- (deriv ?v ?x))",
+
+       "( (deriv (* ?u ?v) ?x)  (+ (* ?v (deriv ?u ?x)) (* ?u (deriv ?v ?x))))",
+       "( (deriv (/ ?u ?v) ?x)  (/ (- (* ?v (deriv ?u ?x)) (* ?u (deriv ?v ?x)))) (expt v 2))",
+
+       // "( (deriv (* ?x ?x) ?x)  (* 2 ?x)",
+       // "( (deriv (expt ?x 2) ?x)  (* 2 ?x)",
+
+       "( (deriv (expt ?u ?y) ?x)  (* (* ?y (expt ?u (- ?y 1))) (deriv ?u ?x))",
+       // "( (deriv (expt ?u ?y) ?x)  (* ?y (expt ?u (- ?y 1))))",
+
+
+       "( (deriv (sqrt ?u) ?x)  (* (/ 1 (* 2 (sqrt ?u))) (deriv ?u ?x)))",
+       // "( (deriv (sqrt ?u) ?x)   (* (/ (deriv ?u ?x) 2) (/ 1 (sqrt ?u))))",
+       // "( (deriv (sqrt ?u) ?x)   (/ (deriv ?u ?x) (* 2 (sqrt ?u))))",
+
+       "( (deriv (exp ?u) ?x)  (* (exp ?u) (deriv ?u ?x)))",
+
+
+
+       // "( (deriv (log ?u) ?x)  (* (/ 1 ?u) (deriv ?u ?x))",
+       "( (deriv (log ?u) ?x)  (/ (deriv ?u ?x) ?u)",
+
+       "( (deriv (sin ?u) ?x)  (* (cos ?u) (deriv ?u ?x)",
+
+       "( (deriv (cos ?u) ?x)  (* (- (sin ?u)) (deriv ?u ?x)",
+
+       "( (deriv (tan ?u) ?x)  (* (+ (tan (expt ?u 2)) 1) (deriv ?u ?x)",
+
+
+
 
        "( (deriv ?y ?x)   0)"   // this must be last!
        ));
 
-    public static Cons javarestructpats = readlist( list(
+    /*public static Cons javarestructpats = readlist( list(
        "( (return (if ?test ?then)) (if ?test (return ?then)) )",
        "( (return (if ?test ?then ?else)) (if ?test (return ?then) (return  ?else)) )",
        "( (defun ?fun ?args ?code) (zdefun ?fun (arglist ?args) (progn (return ?code))) )",
@@ -615,7 +745,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             Object trans = sublis((Cons) first(ptr), binaryfn);
             System.out.println("sublis:  " + trans.toString()); }
 
-        /*Cons opttests = readlist( list(
+        Cons opttests = readlist( list(
           "(+ 0 foo)",
           "(* fum 1)",
           "(- (- y))",
@@ -651,7 +781,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             Object transopt = transformfp(optpats, trans);
             System.out.println("  opt:  " + transopt.toString()); }
 
-        Cons javatests = readlist( list(
+        /*Cons javatests = readlist( list(
           "(* fum 7)",
           "(setq x y)",
           "(setq x (+ x 1))",

@@ -459,39 +459,37 @@ public static Double eval (Object tree, Cons bindings) {
 // attempts to solve the list of equations eqn for variable v
 // given an assoc list of vals
 public static Double solveqns(Cons eqns, Cons vals, String v) {
+ // test if v is already defined in vals
  if (assoc(v, vals) != null)
     return (Double) second(assoc(v, vals));
-  Cons vars = vars(first(eqns));
+
+  Cons vars = vars(first(eqns)); // get variables from first eqn
   int unknown = 0;
   String var = "";
-  // System.out.println(vars);
-  // is there another way?
+
+  // test for number of unknowns in eqn
   while (vars != null) {
-    //System.out.println("Vars = " + vars);
-    
     if (assoc(first(vars), vals) == null) {
       unknown++;
       var = (String) first(vars);
     }
     vars = rest(vars);
   }
-  
-  // System.out.println("vals = " + vals);
-  // System.out.println("Unknowns = " + unknown);
+
+  // if var can be solved and evaled add it and its val to vals
   if (unknown == 1) {
     Object tree = solve((Cons)first(eqns), var);
-    // System.out.println(tree);
     // don't forget to remove the = and variable
     Double val = eval(rhs((Cons)tree), vals);
-    // System.out.println(vals);
     if (tree != null && val != null) {
       return solveqns(rest(eqns), cons(list(var, val), vals), v);
     }
   }
+  
+  // no equations can be solved
   if (rest(eqns) == null)
     return null;
-  return solveqns(rest(eqns), vals, v);
-  
+  return solveqns(rest(eqns), vals, v);  
 }
 
     // Question 2 of Assignment 8
@@ -506,7 +504,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (?function addnums) (?combine +) (?baseanswer (if (numberp tree) tree 0)))",       
        "( (?function countstrings) (?combine +) (?baseanswer (if (stringp tree) 1 0)))",
        "( (?function copytree) (?combine cons) (?baseanswer tree)",
-       "( (?function mintree) (?combine min) (?baseanswer tree))",
+       "( (?function mintree) (?combine min) (?baseanswer (if (numberp tree) tree 999999)))",
        "( (?function conses) (?combine add1) (?baseanswer 0))"
        ));
   
@@ -552,10 +550,8 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (* ?x 1)   ?x)",
        "( (* 1 ?x)   ?x)",
 
-       // simple multiplication
-
        // subtraction
-       "( (- (- ?x ?y ))   (- ?x ?y))",
+       "( (- (- ?x ?y ))   (- ?y ?x))",
        "( (- ?x ?x)   0)",
        "( (- (- ?x))   ?x)",
 
@@ -623,22 +619,12 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (deriv (* ?u ?v) ?x)  (+ (* ?v (deriv ?u ?x)) (* ?u (deriv ?v ?x))))",
        "( (deriv (/ ?u ?v) ?x)  (/ (- (* ?v (deriv ?u ?x)) (* ?u (deriv ?v ?x)))) (expt v 2))",
 
-       // "( (deriv (* ?x ?x) ?x)  (* 2 ?x)",
-       // "( (deriv (expt ?x 2) ?x)  (* 2 ?x)",
-
        "( (deriv (expt ?u ?y) ?x)  (* (* ?y (expt ?u (- ?y 1))) (deriv ?u ?x))",
-       // "( (deriv (expt ?u ?y) ?x)  (* ?y (expt ?u (- ?y 1))))",
-
 
        "( (deriv (sqrt ?u) ?x)  (* (/ 1 (* 2 (sqrt ?u))) (deriv ?u ?x)))",
-       // "( (deriv (sqrt ?u) ?x)   (* (/ (deriv ?u ?x) 2) (/ 1 (sqrt ?u))))",
-       // "( (deriv (sqrt ?u) ?x)   (/ (deriv ?u ?x) (* 2 (sqrt ?u))))",
 
        "( (deriv (exp ?u) ?x)  (* (exp ?u) (deriv ?u ?x)))",
 
-
-
-       // "( (deriv (log ?u) ?x)  (* (/ 1 ?u) (deriv ?u ?x))",
        "( (deriv (log ?u) ?x)  (/ (deriv ?u ?x) ?u)",
 
        "( (deriv (sin ?u) ?x)  (* (cos ?u) (deriv ?u ?x)",
@@ -646,9 +632,6 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (deriv (cos ?u) ?x)  (* (- (sin ?u)) (deriv ?u ?x)",
 
        "( (deriv (tan ?u) ?x)  (* (+ (tan (expt ?u 2)) 1) (deriv ?u ?x)",
-
-
-
 
        "( (deriv ?y ?x)   0)"   // this must be last!
        ));
@@ -662,18 +645,36 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
 
     public static Cons javapats = readlist( list(
        "( (if ?test ?then) (if zspace zlparen zspace ?test zspace zrparen ztab zreturn ?then))",
-       "( (< ?x ?y)  (zlparen ?x zspace < zspace ?y zrparen))",
-       "( (min ?x ?y) (Math.min zlparen ?x , zspace ?y zrparen))",
+       "( (if ?test ?then ?else) (if zspace zlparen zspace ?test zspace zrparen zspace { ztab zreturn ?then zuntab zreturn } zspace else zspace { zspace ztab zreturn ?else zuntab zreturn }))",
+ 
        "( (cons ?x ?y) (znothing cons zlparen ?x , zspace ?y zrparen))",
        "( (zdefun ?fun ?args ?code) (public zspace static zspace Object zspace ?fun zspace ?args zreturn ?code zreturn) )",
        "( (arglist (?x))   (zlparen Object zspace ?x zrparen))",
-       "( (progn ?x) ({ ztab zreturn ?x zreturn }) )",
+       "( (progn ?x) ({ ztab zreturn ?x zuntab zreturn }) )",
        "( (setq ?x ?y) (?x zspace = zspace ?y ; zreturn) )",
        "( (first ?x) (znothing first zlparen zlparen Cons zrparen ?x zrparen) )",
-       // add more
+       "( (rest ?x) (znothing rest zlparen zlparen Cons zrparen ?x zrparen) )",
 
-       
+       "( (incf ?x) (?x + +))",
+       "( (* ?x ?y) (?x zspace * zspace ?y))",
+       "( (/ ?x ?y) (?x zspace / zspace ?y))",
+       "( (+ ?x ?y) (?x zspace + zspace ?y))",
+       "( (- ?x ?y) (?x zspace - zspace ?y))",
 
+       "( (expt ?x ?y) (Math.pow zlparen ?x , zspace ?y zrparen))",
+       "( (add1 ?x ?y) (?x zspace + zspace ?y zspace + zspace 1))",
+
+       "( (> ?x ?y) (?x zspace > zspace ?y))",
+       "( (< ?x ?y)  (zlparen ?x zspace < zspace ?y zrparen))",
+
+       "( (or ?x ?y) (?x zspace || zspace ?y))",
+       "( (and ?x ?y) (?x zspace && zspace ?y))",
+       "( (not ?x) (! ?x))",
+
+       "( (>= ?x ?y) (?x zspace >= zspace ?y))",
+       "( (<= ?x ?y) (?x zspace <= zspace ?y))",
+
+       "( (return ?x) (return zspace ?x ;))",        
 
        "( (?fun ?x)   (znothing ?fun zlparen ?x zrparen))"  // must be last
        ));
@@ -799,7 +800,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             System.out.println(); }
 
 
-       /* for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
+        for ( Cons ptr = substitutions; ptr != null; ptr = rest(ptr) ) {
             Object ltrans = sublis((Cons) first(ptr), binaryfn);
             System.out.println("sublis:  " + ltrans.toString());
             Cons restr = (Cons) transformfp(javarestructpats, ltrans);
@@ -807,7 +808,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
             Cons trans = (Cons) transformfp(javapats, restr);
             System.out.println("       " + trans.toString());
             javaprintlist(trans, 0);
-            System.out.println(); } */
+            System.out.println(); } 
 
       }
 

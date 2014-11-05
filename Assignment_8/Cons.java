@@ -485,7 +485,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
       return solveqns(rest(eqns), cons(list(var, val), vals), v);
     }
   }
-  
+
   // no equations can be solved
   if (rest(eqns) == null)
     return null;
@@ -508,6 +508,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (?function conses) (?combine add1) (?baseanswer 0))"
        ));
   
+    // list of patterns to perform optimization of algebraic expressions
     public static Cons optpats = readlist( list(
 
        // addition
@@ -606,7 +607,8 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (sqrt 121)   11)",
        "( (sqrt 144)   12)"
        ));
-
+  
+    // list of patterns to perform differentiation
     public static Cons derivpats = readlist( list(
        "( (deriv ?x ?x)   1)",
 
@@ -636,6 +638,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (deriv ?y ?x)   0)"   // this must be last!
        ));
 
+    // restructuring patterns for Lisp to Java
     public static Cons javarestructpats = readlist( list(
        "( (return (if ?test ?then)) (if ?test (return ?then)) )",
        "( (return (if ?test ?then ?else)) (if ?test (return ?then) (return  ?else)) )",
@@ -643,6 +646,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (setq ?x (+ ?x 1)) (incf ?x) )"
        ));
 
+    // patterns for Lisp to Java syntax
     public static Cons javapats = readlist( list(
        "( (if ?test ?then) (if zspace zlparen zspace ?test zspace zrparen ztab zreturn ?then))",
        "( (if ?test ?then ?else) (if zspace zlparen zspace ?test zspace zrparen zspace { ztab zreturn ?then zuntab zreturn } zspace else zspace { zspace ztab zreturn ?else zuntab zreturn }))",
@@ -661,6 +665,7 @@ public static Double solveqns(Cons eqns, Cons vals, String v) {
        "( (+ ?x ?y) (?x zspace + zspace ?y))",
        "( (- ?x ?y) (?x zspace - zspace ?y))",
 
+       "( (min ?x ?y) (Math.min zlparen ?x , zspace ?y zrparen))",
        "( (expt ?x ?y) (Math.pow zlparen ?x , zspace ?y zrparen))",
        "( (add1 ?x ?y) (?x zspace + zspace ?y zspace + zspace 1))",
 

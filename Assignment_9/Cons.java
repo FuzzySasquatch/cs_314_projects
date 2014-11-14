@@ -485,6 +485,7 @@ public static void emitp(int voice, String note, int time, int d) {
         return list(op(e), rhs(e), lhs(e));
       // rhs of e is an operator
       if (consp(rhs(e))) {
+        // tries to transform the expression for each pattern
         for ( Cons ptr = algpats; ptr != null; ptr = rest(ptr) ) {
             Object trans = transform((Cons)first(ptr), e);
             if (trans != null) {
@@ -498,16 +499,25 @@ public static void emitp(int voice, String note, int time, int d) {
       return null;
     }
 
-    /*public int hashCode() { return conshash(this); }
+    public int hashCode() { 
+      return conshash(this); 
+    }
 
     public static int conshash(Object e) {
+      if (e == null)
+        return 0;
+      int first = (first((Cons)e)).hashCode() * 17;
+      int second = 0;
+      if (rest((Cons)e) != null)
+        second = rest((Cons)e).hashCode() * 127;
+      return first ^ second;
     }
 
     // total time to execute an action
-    public static int totaltime(Cons action) {
-    }
+    // public static int totaltime(Cons action) {
+    // }
 
-    // you should not need to change this function
+    /*// you should not need to change this function
     // start by putting the total program on the queue at time 0
     public static PriorityQueue initpq(Cons action) {
         PriorityQueue pq = new PriorityQueue();
@@ -574,7 +584,7 @@ public static void emitp(int voice, String note, int time, int d) {
                 vset = rest(vset); }
             frm = rest(frm); }
 
-        /*Cons hashtest =  (Cons) readlist(list("(a)", "(a b)", "(a b c ab +)"));
+        Cons hashtest =  (Cons) readlist(list("(a)", "(a b)", "(a b c ab +)"));
         for (Cons hptr = hashtest; hptr != null; hptr = rest(hptr) ) {
             Cons ls = (Cons) first(hptr);
             for (Cons ptr = ls; ptr != null; ptr = rest(ptr) ) {
@@ -599,7 +609,7 @@ public static void emitp(int voice, String note, int time, int d) {
 
         //	Player player = new Player();
 
-        PriorityQueue pqa = initpq((Cons) reader("(seq (boom 4) (bell 4))"));
+        /*PriorityQueue pqa = initpq((Cons) reader("(seq (boom 4) (bell 4))"));
         simulator(pqa);
         String stra = mstring(0);
         System.out.println(stra);

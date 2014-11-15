@@ -541,51 +541,109 @@ public static void emitp(int voice, String note, int time, int d) {
       return (Integer)first(action);
     }
 
-    // // you should not need to change this function
-    // // start by putting the total program on the queue at time 0
-    // public static PriorityQueue initpq(Cons action) {
-    //     PriorityQueue pq = new PriorityQueue();
-    //     pq.add(new Event(action, 0));
-    //     System.out.println("new program: " + action.toString());
-    //     for ( int i = 0; i < 12; i++ ) {
-    //         inststring[i] = "";
-    //         insttime[i] = 0; };
-    //     return pq; }
+    // you should not need to change this function
+    // start by putting the total program on the queue at time 0
+    public static PriorityQueue initpq(Cons action) {
+        PriorityQueue pq = new PriorityQueue();
+        pq.add(new Event(action, 0));
+        System.out.println("new program: " + action.toString());
+        for ( int i = 0; i < 12; i++ ) {
+            inststring[i] = "";
+            insttime[i] = 0; };
+        return pq; }
 
-    // // you should not need to change this function
-    // // add an event to the priority queue
-    // public static PriorityQueue
-    //        addevent(PriorityQueue pq, Cons action, int time) {
-    //     if ( action != null ) pq.add(new Event(action, time));
-    //     return pq; }
+    // you should not need to change this function
+    // add an event to the priority queue
+    public static PriorityQueue addevent(PriorityQueue pq, Cons action, int time) {
+        if ( action != null ) pq.add(new Event(action, time));
+        return pq; }
 
-    // // you should not need to change this function
-    // // if the queue is not empty, remove the next event and execute it
-    //     public static void simulator(PriorityQueue pq) {
-    //     while ( pq.size() > 0 ) {
-    //         Event e = (Event) pq.poll();
-    //         int tm = e.time();
-    //         Cons act = e.action();
-    //          //     System.out.println(":" + tm + " " + act.toString());
-    //         execute(pq, act, tm);
-    //      }
-    //     return;
-    //  }
+    // you should not need to change this function
+    // if the queue is not empty, remove the next event and execute it
+        public static void simulator(PriorityQueue pq) {
+        while ( pq.size() > 0 ) {
+            Event e = (Event) pq.poll();
+            int tm = e.time();
+            Cons act = e.action();
+             //     System.out.println(":" + tm + " " + act.toString());
+            execute(pq, act, tm);
+         }
+        return;
+     }
 
-    // // execute an event
-    // public static void execute(PriorityQueue pq, Cons act, int time) {
-    //     String command = (String) first(act);
+    // execute an event
+    public static void execute(PriorityQueue pq, Cons act, int time) {
+        String command = (String) first(act);
 
-    //     // For simple commands, just emit the I/O command.
-    //     // better to look up simple commands in a table, but this works.
-    //     if ( command.equals("boom") ) {
-    //         emit(4, time, (int)(Integer)second(act));
-    //         return; }
+        // For simple commands, just emit the I/O command.
+        // better to look up simple commands in a table, but this works.
+        if ( command.equals("boom") ) {
+            emit(4, time, (int)(Integer)second(act));
+            return; }
 
-    //     // sync, seq, and repeat will not emit, but will call addevent
-    //     // to schedule their sub-events.
+        if ( command.equals("snare") ) {
+            emit(5, time, (int)(Integer)second(act));
+            return; }
 
-    // }
+        if ( command.equals("hat") ) {
+            emit(6, time, (int)(Integer)second(act));
+            return; }
+
+        if ( command.equals("cymbal") ) {
+            emit(7, time, (int)(Integer)second(act));
+            return; }
+
+        if ( command.equals("cowbell") ) {
+            emit(8, time, (int)(Integer)second(act));
+            return; }
+
+        if ( command.equals("bell") ) {
+            emit(9, time, (int)(Integer)second(act));
+            return; }
+
+        if ( command.equals("clap") ) {
+            emit(10, time, (int)(Integer)second(act));
+            return; }
+
+        if ( command.equals("kaboom") ) {
+            int d = (Integer)second(act);
+            // emit(5, time, (int)(Integer)second(act));
+            addevent(pq, list("seq", list("rest", d/4), list("boom", d/4), list("boom", d/2)), time);
+            return; }
+
+        if ( command.equals("tambourine") ) {
+            emit(11, time, 2);
+            int d = (Integer)second(act);
+            int dnew = (int)(d * random.nextDouble());
+            if (dnew >= 2)
+              addevent(pq, list("tambourine", dnew), (time + d - dnew));
+            
+            return; }
+
+        if ( command.equals("rest") ) {
+            time += (Integer)second(act);
+            return; }
+
+        if ( command.equals("seq") && rest(act) != null) {
+          addevent(pq, (Cons)second(act), time );
+          addevent(pq, cons("seq", (Cons)rest(rest(act))), time + totaltime((Cons)second(act)));
+          return;
+        }
+
+        if ( command.equals("repeat")) {
+          int n = (Integer)second(act);
+          addevent(pq, (Cons)first(rest(rest(act))), time);
+          while (n > 1) {
+            n--;
+            addevent(pq, list("repeat", n, (Cons)first(rest(rest(act)))), time + totaltime((Cons)first(rest(rest(act)))));
+          }
+          return;
+        }
+
+        // sync, seq, and repeat will not emit, but will call addevent
+        // to schedule their sub-events.
+
+    }
 
     /*public static Cons round( Cons melody ) {
     }
@@ -631,12 +689,11 @@ public static void emitp(int voice, String note, int time, int d) {
                                mymem.call(vals[i]));
         System.out.println("Number of function calls = " + fcount);
 
-        Cons lst = list("seq", list("boom", 4), list("bell", 4), list("cat", 2));
-        System.out.println(totaltime(lst));
+
 
         //	Player player = new Player();
 
-        /*PriorityQueue pqa = initpq((Cons) reader("(seq (boom 4) (bell 4))"));
+        PriorityQueue pqa = initpq((Cons) reader("(seq (boom 4) (bell 4))"));
         simulator(pqa);
         String stra = mstring(0);
         System.out.println(stra);
@@ -702,7 +759,7 @@ public static void emitp(int voice, String note, int time, int d) {
         System.out.println("Total time of melody = "
                            + (Integer)totaltime(melody));
 
-        PriorityQueue pqj = initpq( round(melody) );
+        /*PriorityQueue pqj = initpq( round(melody) );
         simulator(pqj);
         String strj = mstring(0);
         System.out.println(strj);

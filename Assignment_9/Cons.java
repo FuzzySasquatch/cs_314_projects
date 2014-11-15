@@ -514,56 +514,80 @@ public static void emitp(int voice, String note, int time, int d) {
     }
 
     // total time to execute an action
-    // public static int totaltime(Cons action) {
-    // }
-
-    /*// you should not need to change this function
-    // start by putting the total program on the queue at time 0
-    public static PriorityQueue initpq(Cons action) {
-        PriorityQueue pq = new PriorityQueue();
-        pq.add(new Event(action, 0));
-        System.out.println("new program: " + action.toString());
-        for ( int i = 0; i < 12; i++ ) {
-            inststring[i] = "";
-            insttime[i] = 0; };
-        return pq; }
-
-    // you should not need to change this function
-    // add an event to the priority queue
-    public static PriorityQueue
-           addevent(PriorityQueue pq, Cons action, int time) {
-        if ( action != null ) pq.add(new Event(action, time));
-        return pq; }
-
-    // you should not need to change this function
-    // if the queue is not empty, remove the next event and execute it
-        public static void simulator(PriorityQueue pq) {
-        while ( pq.size() > 0 ) {
-            Event e = (Event) pq.poll();
-            int tm = e.time();
-            Cons act = e.action();
-             //     System.out.println(":" + tm + " " + act.toString());
-            execute(pq, act, tm);
-         }
-        return;
-     }
-
-    // execute an event
-    public static void execute(PriorityQueue pq, Cons act, int time) {
-        String command = (String) first(act);
-
-        // For simple commands, just emit the I/O command.
-        // better to look up simple commands in a table, but this works.
-        if ( command.equals("boom") ) {
-            emit(4, time, (int)(Integer)second(act));
-            return; }
-
-        // sync, seq, and repeat will not emit, but will call addevent
-        // to schedule their sub-events.
-
+    public static int totaltime(Cons action) {
+      // sync is the last item
+      if (first(action).equals("sync") && rest(action) == null)
+        return 0;
+      // takes the max time of its sub-actions
+      if (first(action).equals("sync"))
+        return Math.max(totaltime((Cons)lhs(action)), totaltime(cons("sync", rest((Cons)rest(action)))));
+      // multiplies the repeat count by the time of sub-action
+      if (first(action).equals("repeat")) {
+        int n = (Integer)second(action);
+        return n * totaltime(rest(rest(action)));
+      }
+      // sums the times of sub-actions of seq
+      if (first(action).equals("seq") && rest((Cons)rest(action)) != null)
+        return totaltime((Cons)lhs(action)) + totaltime(rest((Cons)rest(action)));      
+      // adds further sub-actions of seq
+      if (consp(first(action)) && rest(action) != null)
+        return totaltime((Cons)first(action)) + totaltime(rest(action));
+      // enters a Cons object
+      if (consp(first(action)))
+        return totaltime((Cons)first(action));
+      // traverses the action instructions
+      if (rest(action) != null)
+        return totaltime(rest(action));
+      return (Integer)first(action);
     }
 
-    public static Cons round( Cons melody ) {
+    // // you should not need to change this function
+    // // start by putting the total program on the queue at time 0
+    // public static PriorityQueue initpq(Cons action) {
+    //     PriorityQueue pq = new PriorityQueue();
+    //     pq.add(new Event(action, 0));
+    //     System.out.println("new program: " + action.toString());
+    //     for ( int i = 0; i < 12; i++ ) {
+    //         inststring[i] = "";
+    //         insttime[i] = 0; };
+    //     return pq; }
+
+    // // you should not need to change this function
+    // // add an event to the priority queue
+    // public static PriorityQueue
+    //        addevent(PriorityQueue pq, Cons action, int time) {
+    //     if ( action != null ) pq.add(new Event(action, time));
+    //     return pq; }
+
+    // // you should not need to change this function
+    // // if the queue is not empty, remove the next event and execute it
+    //     public static void simulator(PriorityQueue pq) {
+    //     while ( pq.size() > 0 ) {
+    //         Event e = (Event) pq.poll();
+    //         int tm = e.time();
+    //         Cons act = e.action();
+    //          //     System.out.println(":" + tm + " " + act.toString());
+    //         execute(pq, act, tm);
+    //      }
+    //     return;
+    //  }
+
+    // // execute an event
+    // public static void execute(PriorityQueue pq, Cons act, int time) {
+    //     String command = (String) first(act);
+
+    //     // For simple commands, just emit the I/O command.
+    //     // better to look up simple commands in a table, but this works.
+    //     if ( command.equals("boom") ) {
+    //         emit(4, time, (int)(Integer)second(act));
+    //         return; }
+
+    //     // sync, seq, and repeat will not emit, but will call addevent
+    //     // to schedule their sub-events.
+
+    // }
+
+    /*public static Cons round( Cons melody ) {
     }
 */
     // ****** your code ends here ******
@@ -606,6 +630,9 @@ public static void emitp(int voice, String note, int time, int d) {
             System.out.println("Fn of " + vals[i] + " = " +
                                mymem.call(vals[i]));
         System.out.println("Number of function calls = " + fcount);
+
+        Cons lst = list("seq", list("boom", 4), list("bell", 4), list("cat", 2));
+        System.out.println(totaltime(lst));
 
         //	Player player = new Player();
 

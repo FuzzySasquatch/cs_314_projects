@@ -620,6 +620,11 @@ public static void emitp(int voice, String note, int time, int d) {
             
             return; }
 
+        if ( command.equals("piano") ) {
+            emitp((Integer)second(act), (String)third(act), time, (Integer)fourth(act));
+            
+            return; }
+
         if ( command.equals("rest") ) {
             time += (Integer)second(act);
             return; }
@@ -632,11 +637,27 @@ public static void emitp(int voice, String note, int time, int d) {
 
         if ( command.equals("repeat")) {
           int n = (Integer)second(act);
-          addevent(pq, (Cons)first(rest(rest(act))), time);
-          while (n > 1) {
-            n--;
-            addevent(pq, list("repeat", n, (Cons)first(rest(rest(act)))), time + totaltime((Cons)first(rest(rest(act)))));
-          }
+          addevent(pq, (Cons)third(act), time);
+          if (n > 1)
+            addevent(pq, list("repeat", n - 1, (Cons)third(act)), time + totaltime((Cons)third(act)));
+          return;
+        }
+
+        // if ( command.equals("sync") ) {
+        //   Cons acts = rest(act);
+        //   Cons theAct = (Cons) first(acts);
+        //   pq.add(new Event(theAct, time));
+        //   if (rest(acts)!= null)
+        //   {
+        //     Cons rest = cons("sync",rest(acts));
+        //     pq.add(new Event(rest, time));
+        //   }
+        //   return;
+        // }
+
+        if ( command.equals("sync") && rest(act) != null) {
+          addevent(pq, (Cons)second(act), time );
+          addevent(pq, cons("sync", (Cons)rest(rest(act))), time);
           return;
         }
 

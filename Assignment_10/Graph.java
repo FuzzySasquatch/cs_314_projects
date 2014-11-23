@@ -155,6 +155,10 @@ public int dijkstra( Vertex s ) {
             e.target.parent = v;
             fringe.add(e.target);  } } } } return removeCount; }
 
+ // Prim finds the minimum spanning tree, i.e. the way to connect all nodes using minimum total cost.  
+ // The total cost is the cost of all roads used in the Prim solution.  
+ // We will compare this to the total cost of all roads.
+
 public int prim( Vertex s ) {
   for ( Vertex v : vertices.values() ) {
     v.visited = false;
@@ -167,18 +171,21 @@ public int prim( Vertex s ) {
           public int compare(Vertex i, Vertex j) {
               return (i.cost - j.cost); }});
   fringe.add(s);
-  int removeCount = 0;
   while ( ! fringe.isEmpty() ) {
     Vertex v = fringe.remove();  // lowest-cost
-    removeCount++;
-    if ( ! v.visited )
-      { v.visited = true;
-        for ( Edge e : v.edges )
-          {  if ( (! e.target.visited) &&
-                  ( e.cost < e.target.cost ) )
-             { e.target.cost = e.cost;
-               e.target.parent = v;
-               fringe.add(e.target); } } } } return removeCount; }
+    if ( ! v.visited ) { 
+      v.visited = true;
+      for ( Edge e : v.edges ) {  
+        if ( (! e.target.visited) && ( e.cost < e.target.cost ) ) {
+          e.target.cost = e.cost;
+          e.target.parent = v;
+          fringe.add(e.target); }}}} 
+  // add the cost up after using prim
+  int cost = 0;
+  for ( Vertex v : vertices.values() )
+    cost += v.cost();
+  return cost; 
+}
 
 // public int astar( Vertex start, Vertex goal, Heuristic h ) {
 //  }
@@ -202,17 +209,34 @@ public int prim( Vertex s ) {
 //         public Integer fn(Vertex from, Vertex to) {
 //             return (Integer)((int) (rng.nextDouble() * 5000.0)); } };
 
+// returns the cost of an edge from start to goal
+// assuming direct edge between the two vertices
+public int edgecost( Vertex start, Vertex goal) {
+  return start.distanceTo(goal);
+}
 
-// public int edgecost( Vertex start, Vertex goal) {
-//  }
+// returns the sum of the costs of a path from v to
+// the root of the tree
+public int pathcost (Vertex v) {
+  int cost = 0;
+  for (Vertex path = v; path.parent() != null; path = path.parent()) {
+    // System.out.println("City = " + path.str());
+    cost += path.cost();
+    // System.out.println("Cost = " + path.cost());
+  }
+  return cost;
+}
 
-// public int pathcost (Vertex v) {
-//  }
+public int totalcost( ) {
+  int cost = 0;
+  for ( Vertex v : vertices.values() ) {
+    for (Edge e : v.edges)
+        cost += e.cost;
+  }
+  return cost / 2;
+}
 
-// public int totalcost( ) {
-//  }
-
-    // list of city names to get to specified city
+// list of city names to get to specified city
 public Cons pathto(String city) {
   Vertex path = vertex(city);
   Cons answer = Cons.cons(path.str(), null);

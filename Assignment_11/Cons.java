@@ -126,6 +126,12 @@ public static Cons nreverse (Cons lst) {
       lst = next; };
   return last; }
 
+public static Cons reverse (Cons lst) {
+  Cons answer = null;
+  for ( ; lst != null; lst = rest(lst) )
+    answer = cons( first(lst), answer );
+  return answer; }
+
     public static int square(int x) { return x*x; }
     public static int pow (int x, int n) {
         if ( n <= 0 ) return 1;
@@ -301,13 +307,9 @@ throws java.io.FileNotFoundException
               String delims = " .,;:-!?'\n\t\f\\0123456789";
               StringTokenizer st = new StringTokenizer(value, delims);
               while (st.hasMoreTokens()) {
+                // System.out.println("   map3 key = " + key + "  val = " + value);
                 mr.collect_map(st.nextToken(), list("1"));
               }
-              // String[] result = value.split("\\w");
-              // for (int i = 0; i < result.length; i++) {
-              //   // System.out.println("   map3 key = " + key + "  val = " + value);
-              //   mr.collect_map(result[i], list("1"));
-              // }
             } };
 
         final Reducer red3 = new Reducer() {
@@ -337,14 +339,21 @@ throws java.io.FileNotFoundException
 
         final Mapper map4 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
-                //  System.out.println("   map4 key = " + key + "  val = " + value);
                 String grepkey = mr.parameter();
+                if (value.contains(grepkey)) {
+                    // System.out.println("   map4 key = " + key + "  val = " + value);
+                    mr.collect_map(grepkey, list(key.toString()));
+                }
                 // System.out.println("   grepkey = " + grepkey);
             } };
                         
         final Reducer red4 = new Reducer() {
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red4 key = " + key + "  val = " + value.toString());
+                Cons result = null;
+                for ( Cons lst = value; lst != null; lst = rest(lst) )
+                    result = cons(Integer.decode((String) first((Cons)first(lst))), result);
+                mr.collect_reduce(key, reverse(result));
             } };
 
         MapReduce mr4 = new MapReduce(map4, red4);

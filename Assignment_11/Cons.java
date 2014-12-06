@@ -302,14 +302,13 @@ throws java.io.FileNotFoundException
 
         final Mapper map3 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
-                
-              value = value.toLowerCase();
-              String delims = " .,;:-!?'\n\t\f\\0123456789";
-              StringTokenizer st = new StringTokenizer(value, delims);
-              while (st.hasMoreTokens()) {
-                // System.out.println("   map3 key = " + key + "  val = " + value);
-                mr.collect_map(st.nextToken(), list("1"));
-              }
+                value = value.toLowerCase();
+                String delims = " .,;:-!?'\n\t\f\\0123456789";
+                StringTokenizer st = new StringTokenizer(value, delims);
+                while (st.hasMoreTokens()) {
+                  // System.out.println("   map3 key = " + key + "  val = " + value);
+                  mr.collect_map(st.nextToken(), list("1"));
+                }
             } };
 
         final Reducer red3 = new Reducer() {
@@ -367,11 +366,21 @@ throws java.io.FileNotFoundException
         final Mapper map5 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
                 // System.out.println("   map5 key = " + key + "  val = " + value);
+                value = value.toLowerCase();
+                String delims = " .,;:-!?'\n\t\f\\0123456789";
+                StringTokenizer st = new StringTokenizer(value, delims);
+                while (st.hasMoreTokens()) {
+                    mr.collect_map(st.nextToken(), list(key.toString()));
+                }
             } };
 
         final Reducer red5 = new Reducer() {
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red5 key = " + key + "  val = " + value.toString());
+                Cons result = null;
+                for ( Cons lst = value; lst != null; lst = rest(lst) )
+                    result = cons(Integer.decode((String) first((Cons)first(lst))), result);
+                mr.collect_reduce(key, reverse(result));
             } };
 
         MapReduce mr5 = new MapReduce(map5, red5);

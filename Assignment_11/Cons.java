@@ -272,10 +272,10 @@ throws java.io.FileNotFoundException
         final Mapper map2 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
                 
-                value = value.toLowerCase();
-                for (int i = 0; i < value.length(); i++) {
+                value = value.toLowerCase();                                      // makes the value case-insensitive
+                for (int i = 0; i < value.length(); i++) {                        // steps through each character
                   char c = value.charAt(i);
-                  if (c >= 'a' && c <= 'z') {
+                  if (c >= 'a' && c <= 'z') {                                     // sets the acceptable characters
                     // System.out.println("   map2 key = " + key + "  val = " + value);
                     mr.collect_map("" + c, list("1"));
                   }
@@ -286,7 +286,7 @@ throws java.io.FileNotFoundException
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red2 key = " + key + "  val = " + value.toString());
                 int sum = 0;
-                for ( Cons lst = value; lst != null; lst = rest(lst) )
+                for ( Cons lst = value; lst != null; lst = rest(lst) )            // creates a count for each letter
                     sum += Integer.decode((String) first((Cons)
                                                          first(lst)));
                 mr.collect_reduce(key, new Integer(sum));
@@ -302,9 +302,9 @@ throws java.io.FileNotFoundException
 
         final Mapper map3 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
-                value = value.toLowerCase();
-                String delims = " .,;:-!?'\n\t\f\\0123456789";
-                StringTokenizer st = new StringTokenizer(value, delims);
+                value = value.toLowerCase();                                      // makes the value case-insensitive
+                String delims = " .,;:-!?'\n\t\f\\0123456789";                    // sets the limits or boundaries for the tokenizer
+                StringTokenizer st = new StringTokenizer(value, delims);          // tokenizes a value using the delimits
                 while (st.hasMoreTokens()) {
                   // System.out.println("   map3 key = " + key + "  val = " + value);
                   mr.collect_map(st.nextToken(), list("1"));
@@ -315,7 +315,7 @@ throws java.io.FileNotFoundException
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red3 key = " + key + "  val = " + value.toString());
                 int sum = 0;
-                for ( Cons lst = value; lst != null; lst = rest(lst) )
+                for ( Cons lst = value; lst != null; lst = rest(lst) )            // creates a count for each word
                     sum += Integer.decode((String) first((Cons)
                                                          first(lst)));
                 mr.collect_reduce(key, new Integer(sum));
@@ -339,9 +339,9 @@ throws java.io.FileNotFoundException
         final Mapper map4 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
                 String grepkey = mr.parameter();
-                if (value.contains(grepkey)) {
+                if (value.contains(grepkey)) {                                    // tests if the value holds the grep key
                     // System.out.println("   map4 key = " + key + "  val = " + value);
-                    mr.collect_map(grepkey, list(key.toString()));
+                    mr.collect_map(grepkey, list(key.toString()));                // emits the line a grep occurred in
                 }
                 // System.out.println("   grepkey = " + grepkey);
             } };
@@ -350,8 +350,8 @@ throws java.io.FileNotFoundException
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red4 key = " + key + "  val = " + value.toString());
                 Cons result = null;
-                for ( Cons lst = value; lst != null; lst = rest(lst) )
-                    result = cons(Integer.decode((String) first((Cons)first(lst))), result);
+                for ( Cons lst = value; lst != null; lst = rest(lst) )                          // conses together the line  
+                    result = cons(Integer.decode((String) first((Cons)first(lst))), result);    // numbers a key appears in
                 mr.collect_reduce(key, reverse(result));
             } };
 
@@ -370,7 +370,7 @@ throws java.io.FileNotFoundException
                 String delims = " .,;:-!?'\n\t\f\\0123456789";
                 StringTokenizer st = new StringTokenizer(value, delims);
                 while (st.hasMoreTokens()) {
-                    mr.collect_map(st.nextToken(), list(key.toString()));
+                    mr.collect_map(st.nextToken(), list(key.toString()));         // emits the line a word occurred in
                 }
             } };
 
@@ -395,12 +395,23 @@ throws java.io.FileNotFoundException
         final Mapper map6 = new Mapper() {
             public void map(String key, String value, MapReduce mr) {
                 // System.out.println("   map6 key = " + key + "  val = " + value);
+                String[] result = value.split(",");
+                mr.collect_map(result[0], list(result[2].toString()));            // emits a movie id and rating
+                // }
             } };
 
         final Reducer red6 = new Reducer() {
             public void reduce(String key, Cons value, MapReduce mr) {
                 // System.out.println("   red6 key = " + key + "  val = " + value.toString());
-            } };
+                double sum = 0;
+                int count = 0;
+                for ( Cons lst = value; lst != null; lst = rest(lst) ) {
+                    sum += Double.valueOf((String) first((Cons)
+                                                         first(lst)));
+                    count++;
+                }
+                mr.collect_reduce(key, list(new Double(sum / count), new Integer(count)));       // returns a movie number, its average rating,
+            } };                                                                                 // and number of ratings
 
         MapReduce mr6 = new MapReduce(map6, red6);
 
